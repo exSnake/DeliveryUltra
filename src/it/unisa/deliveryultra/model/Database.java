@@ -47,6 +47,7 @@ public abstract class Database {
 	
 	public abstract String getConnectionString();
 	public abstract boolean openConnection();
+	public abstract boolean closeConnection();
 	
 	@Override
 	public String toString() {
