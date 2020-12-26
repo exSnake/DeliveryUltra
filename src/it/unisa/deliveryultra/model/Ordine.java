@@ -1,8 +1,10 @@
 package it.unisa.deliveryultra.model;
 
+import java.time.LocalDateTime;
+
 public class Ordine {
 	private int numOrdine;
-	private String dataOrdine;
+	private LocalDateTime dataOrdine;
 	private int ristoranteId;
 	private String clienteEmail;
 	private String destinazione;
@@ -13,7 +15,7 @@ public class Ordine {
 	private String personaCf;
 	private String orarioConsegna;
 
-	public Ordine(int numOrdine, String dataOrdine, int ristoranteId, String clienteEmail, String destinazione,
+	public Ordine(int numOrdine, LocalDateTime dataOrdine, int ristoranteId, String clienteEmail, String destinazione,
 			String tipo, String descrizione, String stato, String stimaOrario, String personaCf, String orarioConsegna) {
 		super();
 		this.numOrdine = numOrdine;
@@ -29,11 +31,15 @@ public class Ordine {
 		this.orarioConsegna = orarioConsegna;
 	}
 
+	public Ordine() {
+		
+	}
+
 	public int getNumOrdine() { return numOrdine; }
 	public void setNumOrdine(int numOrdine) { this.numOrdine = numOrdine; }
 
-	public String getDataOrdine() { return dataOrdine; }
-	public void setDataOrdine(String dataOrdine) { this.dataOrdine = dataOrdine; }
+	public LocalDateTime getDataOrdine() { return dataOrdine; }
+	public void setDataOrdine(LocalDateTime dataOrdine) { this.dataOrdine = dataOrdine; }
 	
 	public int getRistoranteId() { return ristoranteId; }
 	public void setRistoranteId(int ristoranteId) { this.ristoranteId = ristoranteId; }

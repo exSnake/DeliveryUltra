@@ -1,5 +1,6 @@
 package it.unisa.deliveryultra.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Cliente {
@@ -7,19 +8,20 @@ public class Cliente {
     private String nome;
     private String cognome;
     private String telefono;
-    private String dataReg;
+    private LocalDate dataReg;
     private ArrayList<Indirizzo> indirizzi;
     
     // Costruttore clienti
-    public Cliente(String email, String nome, String cognome, String telefono, String dataReg) {
+    public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg) {
         this.email = email;
         this.nome = nome;
         this.cognome = cognome;
         this.telefono = telefono;
         this.dataReg = dataReg;
+        this.indirizzi = new ArrayList<Indirizzo>();
     }
     
-	public Cliente(String email, String nome, String cognome, String telefono, String dataReg,
+	public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg,
 			ArrayList<Indirizzo> indirizzi) {
 		super();
 		this.email = email;
@@ -28,6 +30,10 @@ public class Cliente {
 		this.telefono = telefono;
 		this.dataReg = dataReg;
 		this.indirizzi = indirizzi;
+	}
+
+	public Cliente() {
+		this.indirizzi = new ArrayList<Indirizzo>();
 	}
 
 	public void aggiungiIndirizzo(Indirizzo indirizzo) {
@@ -68,12 +74,12 @@ public class Cliente {
 		this.telefono = telefono;
 	}
 
-	public String getDataReg() {
+	public LocalDate getDataReg() {
 		return dataReg;
 	}
 
-	public void setDataReg(String dataReg) {
-		this.dataReg = dataReg;
+	public void setDataReg(LocalDate date) {
+		this.dataReg = date;
 	}
 
 	public ArrayList<Indirizzo> getIndirizzi() {
@@ -86,8 +92,7 @@ public class Cliente {
 
 	@Override
 	public String toString() {
-		return "Clienti [email=" + email + ", nome=" + nome + ", cognome=" + cognome + ", telefono=" + telefono
-				+ ", dataReg=" + dataReg + ", indirizzi=" + indirizzi + "]";
+		return nome + " " + cognome + ", " + email;
 	}
 	
 	

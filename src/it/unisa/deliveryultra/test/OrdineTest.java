@@ -31,7 +31,7 @@ public class OrdineTest {
 		String tip = tipo[rnd.nextInt(tipo.length)];
 		Ordine ordine = new Ordine(0, null, ristorante.getId(), cliente.getEmail(), destinazione, tip, desc, null, null, null, null);
 		try {
-			db.insertOrder(ordine, ristorante, cliente);
+			db.inserisciOrdine(ordine, ristorante, cliente);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

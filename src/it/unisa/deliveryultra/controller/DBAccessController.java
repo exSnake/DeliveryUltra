@@ -5,6 +5,7 @@ package it.unisa.deliveryultra.controller;
 
 import it.unisa.deliveryultra.model.Database;
 import it.unisa.deliveryultra.view.DBAccessView;
+import it.unisa.deliveryultra.view.MainView;
 
 /**
  * @author exSna
@@ -35,14 +36,16 @@ public class DBAccessController {
 	}
 	
 	private void AccediBtnClick() {
-		if(!validateForm())
-			return;
+		if(!validateForm()) return;
 		this.view.getLblErrors().setText("");
 		updateModel();
-		//TODO IF connection successful, main window should be opened
-		if(db.openConnection())
+		//If connection successful, main window should be opened
+		if(db.openConnection() != null) {
 			view.getLblErrors().setText("Connessione Riuscita");
-		else {
+			MainViewController mainViewController = new MainViewController(this.db, new MainView());
+			mainViewController.initialize();
+			this.view.getFrmWelcome().dispose();	
+		} else {
 			System.out.println(db.toString());
 			view.getLblErrors().setText("Connessione Fallita");
 		}

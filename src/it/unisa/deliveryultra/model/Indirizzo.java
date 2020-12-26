@@ -1,5 +1,9 @@
 package it.unisa.deliveryultra.model;
 
+/**
+ * @author exSna
+ *
+ */
 public class Indirizzo {
 	private String via;
 	private String civico;
@@ -8,7 +12,6 @@ public class Indirizzo {
 	private String provincia;
 
 	public Indirizzo(String via, String civico, String cap, String citta, String provincia) {
-		super();
 		this.via = via;
 		this.civico = civico;
 		this.cap = cap;
@@ -56,7 +59,9 @@ public class Indirizzo {
 		this.provincia = provincia;
 	}
 
-	
-	
+	@Override
+	public String toString() {
+		return via + ", " + civico + " " + cap + " " + citta + " (" + provincia + ")";
+	}
 	
 }

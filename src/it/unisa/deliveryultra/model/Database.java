@@ -4,7 +4,11 @@
 package it.unisa.deliveryultra.model;
 
 import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 /**
  * @author exSna
@@ -16,7 +20,6 @@ public abstract class Database {
 	protected String password;
 	protected String server;
 	protected int port;
-	protected Connection conn;
 	
 	protected Database(String server, int port, String dbName, String username, String password) {
 		super();
@@ -42,12 +45,9 @@ public abstract class Database {
 	public int getPort() { return port; }
 	public void setPort(int port) { this.port = port; }
 	
-	public Connection getConn() { return conn; }
-	public void setConn(Connection conn) { this.conn = conn; }
-	
 	public abstract String getConnectionString();
-	public abstract boolean openConnection();
-	public abstract boolean closeConnection();
+	public abstract Connection openConnection();
+	public abstract boolean closeConnection(Connection conn);
 	
 	@Override
 	public String toString() {
@@ -61,5 +61,15 @@ public abstract class Database {
 				+ "ConnectionString: %s", getServer(),getPort(),getDbName(),getUsername(),getPassword(),getConnectionString()));
 		return str.toString();
 	}
+
+	public abstract ArrayList<Ristorante> getRistoranti() throws Exception;
+
+	public abstract ArrayList<Cliente> getClienti() throws Exception;
+	
+	public abstract ArrayList<Indirizzo> getClienteIndirizzi(Cliente cliente) throws Exception;
+	
+	public abstract boolean inserisciOrdine(Ordine ordine, Ristorante ristorante, Cliente cliente) throws Exception;
+
+	public abstract boolean assegnaOrdine(Ordine ordine, Persona persona, LocalDateTime ora) throws Exception;
 	
 }
