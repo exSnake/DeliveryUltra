@@ -3,12 +3,10 @@
  */
 package it.unisa.deliveryultra.model;
 
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.time.LocalDate;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,30 +61,42 @@ public abstract class Database {
 		return str.toString();
 	}
 
-	public abstract ArrayList<Ristorante> getRistoranti() throws Exception;
+	public abstract List<Ristorante> getRistoranti() throws SQLException;
 
-	public abstract ArrayList<Cliente> getClienti() throws Exception;
+	public abstract List<Cliente> getClienti() throws SQLException;
 	
-	public abstract ArrayList<Indirizzo> getClienteIndirizzi(Cliente cliente) throws Exception;
+	public abstract List<Indirizzo> getClienteIndirizzi(Cliente cliente) throws SQLException;
 	
-	public abstract boolean inserisciOrdine(Ordine ordine, Ristorante ristorante, Cliente cliente) throws Exception;
+	public abstract boolean inserisciOrdine(Ordine ordine, Ristorante ristorante, Cliente cliente) throws SQLException;
 
-	public abstract boolean assegnaOrdine(Ordine ordine, Persona persona, LocalDateTime ora) throws Exception;
+	public abstract boolean assegnaOrdine(Ordine ordine, Persona persona, LocalDateTime ora) throws SQLException, IOException;
 
-	public abstract List<Ordine> getOrdini() throws Exception;
+	public abstract List<Ordine> getOrdini() throws SQLException;
 
-	public abstract List<Ordine> getOrdiniByRistorante(Ristorante ristorante) throws Exception;
+	public abstract List<Ordine> getOrdiniByRistorante(Ristorante ristorante) throws SQLException;
 
-	public abstract boolean eliminaOrdine(Ordine ordine) throws Exception;
+	public abstract boolean eliminaOrdine(Ordine ordine) throws SQLException, IOException;
 
-	public abstract boolean accettaOrdine(Ordine ordine) throws Exception;
+	public abstract boolean accettaOrdine(Ordine ordine) throws SQLException, IOException;
 
-	public abstract boolean consegnaOrdine(Ordine ordine, String nominativo) throws Exception;
+	public abstract boolean consegnaOrdine(Ordine ordine, String nominativo) throws SQLException, IOException;
 
-	public abstract List<Ordine> getOrdiniInCoda() throws Exception;
+	public abstract List<Ordine> getOrdiniInCoda() throws SQLException;
 
-	public abstract List<Ordine> getOrdiniInCodaByRistorante(Ristorante ristorante) throws Exception;
+	public abstract List<Ordine> getOrdiniInCodaByRistorante(Ristorante ristorante) throws SQLException;
 
-	public abstract List<Persona> getPersoneByRistoranteId(int ristoranteId) throws Exception;
+	public abstract List<Persona> getPersoneByRistoranteId(int ristoranteId) throws SQLException;
+
+	public abstract List<Ordine> getOrdiniByCliente(String email) throws SQLException;
+
+	public abstract List<Valutazione> getValutazioniEffettuateByCliente(String email) throws SQLException;
+
+	public abstract List<Ordine> getOrdiniConsegnatiDaRiderNonValutati() throws SQLException;
+
+	public abstract boolean checkRistoranteDisponibile(Ristorante ristorante) throws SQLException;
+
+	public abstract List<Ristorante> getRistorantiDisponibili() throws SQLException;
+
+	public abstract List<Persona> getPersoneByNominativoConsegna(String nominativo) throws SQLException;
 	
 }

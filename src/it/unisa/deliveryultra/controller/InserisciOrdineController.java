@@ -31,9 +31,11 @@ public class InserisciOrdineController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		this.view.getTglbtnDisponibili().addItemListener(e -> onToggleDisponibili());
 		this.view.getCmbCliente().setSelectedItem(null);
 		this.view.getCmbRistorante().setSelectedItem(null);
-		this.view.getCmbCliente().addItemListener(e -> onChangeClienteItem(e));
+		this.view.getCmbRistorante().addItemListener(this::onChangeRistoranteItem);
+		this.view.getCmbCliente().addItemListener(this::onChangeClienteItem);
 		this.view.getBtnInserisci().addActionListener(e -> onInserisciClick());
 		this.view.getTxtDescrizione().getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -44,6 +46,43 @@ public class InserisciOrdineController {
 			public void changedUpdate(DocumentEvent e) { onDescrizioneChange(); }
 		});
 		this.view.setVisible(true);
+	}
+
+	private void onToggleDisponibili() {
+		this.view.getCmbRistorante().removeAllItems();
+		try {
+			if(view.getTglbtnDisponibili().isSelected()) {
+				for (Ristorante rist : db.getRistorantiDisponibili())	 {
+					this.view.getCmbRistorante().addItem(rist);
+				}
+			} else {
+				for (Ristorante rist : db.getRistoranti())	 {
+					this.view.getCmbRistorante().addItem(rist);
+				}
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	private void onChangeRistoranteItem(ItemEvent e) {
+		if(e.getStateChange() == ItemEvent.SELECTED) {
+			Ristorante ristorante = (Ristorante) e.getItem();
+			boolean disponibile = false;
+			try {
+				disponibile = db.checkRistoranteDisponibile(ristorante);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			if(!disponibile) {
+				view.getLblErrors().setText("Non e' possibile ordinare da questo ristorante");
+				view.getBtnInserisci().setEnabled(false);
+			} else {
+				if(view.getLblErrors().getText().equals("Non e' possibile ordinare da questo ristorante"))
+					view.getLblErrors().setText("");
+				view.getBtnInserisci().setEnabled(true);
+			}
+		}
 	}
 
 	protected void onDescrizioneChange() {

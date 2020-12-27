@@ -1,7 +1,6 @@
 package it.unisa.deliveryultra.view;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Image;
 
 import javax.swing.JFrame;
@@ -11,7 +10,6 @@ import javax.swing.table.TableRowSorter;
 
 import it.unisa.deliveryultra.model.*;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.JList;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -35,7 +33,6 @@ public class GestisciOrdiniView extends JFrame {
 	private JButton btnConsegna;
 	private JButton btnAccetta;
 	private JButton btnInCoda;
-	private JLabel lblIcon;
 	private JPanel panel;
 	private JLabel lblDenominazioneHeader;
 	private JLabel lblRagioneSocialeHeader;
@@ -57,26 +54,10 @@ public class GestisciOrdiniView extends JFrame {
 	private JLabel lblCodaMaxBody;
 	private JLabel lblIconRisto;
 	private JLabel lblVisualizzazioneOrdini;
-	private JPanel panel_1;
+	private JPanel panelTable;
 	private JTable table;
 	private OrdineTableModel model;
 	private JScrollPane scrollPane;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					GestisciOrdiniView frame = new GestisciOrdiniView();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
@@ -183,14 +164,14 @@ public class GestisciOrdiniView extends JFrame {
 		lblVisualizzazioneOrdini = new JLabel("Visualizzazione Ordini:");
 		contentPane.add(lblVisualizzazioneOrdini, "cell 0 5 2 1");
 		
-		panel_1 = new JPanel();
-		contentPane.add(panel_1, "cell 0 6 5 1,grow");
-		panel_1.setLayout(new MigLayout("", "[grow]", "[][grow]"));
+		panelTable = new JPanel();
+		contentPane.add(panelTable, "cell 0 6 5 1,grow");
+		panelTable.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 		
 		model = new OrdineTableModel();
 		
 		scrollPane = new JScrollPane();
-		panel_1.add(scrollPane, "flowx,cell 0 1,grow");
+		panelTable.add(scrollPane, "flowx,cell 0 1,grow");
 		table = new JTable(model);
 		scrollPane.setViewportView(table);
 		getTable().setShowGrid(false);

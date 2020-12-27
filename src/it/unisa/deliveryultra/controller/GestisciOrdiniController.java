@@ -1,13 +1,9 @@
 package it.unisa.deliveryultra.controller;
 
-import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.TableRowSorter;
-
 import it.unisa.deliveryultra.model.*;
 import it.unisa.deliveryultra.view.*;
 
@@ -42,7 +38,7 @@ public class GestisciOrdiniController {
 		view.getBtnCerca().addActionListener(e -> onCercaClick());
 		view.getBtnConsegna().addActionListener(e -> onConsegnaClick());
 		view.getBtnElimina().addActionListener(e -> onEliminaClick());
-		view.getTable().getSelectionModel().addListSelectionListener(e -> onSelectedOrdineChange(e));
+		view.getTable().getSelectionModel().addListSelectionListener(e -> onSelectedOrdineChange());
 		view.getBtnInCoda().addActionListener(e -> onInCodaClick());
 		view.setVisible(true);
 	}
@@ -178,7 +174,7 @@ public class GestisciOrdiniController {
 		view.getModel().add(ordini);
 	}
 
-	private void onSelectedOrdineChange(ListSelectionEvent e) {
+	private void onSelectedOrdineChange() {
 		Ordine ordine = view.getTable().getSelectedRow() == -1 ? null : view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		if(ordine == null || ordine.getStato().equals("CONSEGNATO")) {
 			view.getBtnAccetta().setEnabled(false);
@@ -200,11 +196,7 @@ public class GestisciOrdiniController {
 			view.getBtnAssegna().setEnabled(false);
 			view.getBtnConsegna().setEnabled(true);
 			view.getBtnElimina().setEnabled(true);
-		};
-	}
-
-	private void onSelectedPerson(ActionEvent e) {
-		
+		}
 	}
 	
 	private void resetForm() {

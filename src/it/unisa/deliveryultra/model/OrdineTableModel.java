@@ -1,7 +1,6 @@
 package it.unisa.deliveryultra.model;
 
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 import javax.swing.table.AbstractTableModel;
@@ -92,6 +91,8 @@ public class OrdineTableModel extends AbstractTableModel {
             	break;
             case 8:
             	value = ordine.getNominativoConsegna() == null ? "N/D" : ordine.getNominativoConsegna();
+            	break;
+            default:
             	break;
         }
         return value;

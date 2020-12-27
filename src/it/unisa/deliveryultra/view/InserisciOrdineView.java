@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.border.TitledBorder;
+import javax.swing.JToggleButton;
 
 public class InserisciOrdineView extends JFrame {
 	/**
@@ -29,6 +30,7 @@ public class InserisciOrdineView extends JFrame {
 	private JButton btnInserisci;
 	private JLabel lblErrors;
 	private JLabel lblRemainingChar;
+	private JToggleButton tglbtnDisponibili;
 
 	/**
 	 * Create the panel.
@@ -37,45 +39,48 @@ public class InserisciOrdineView extends JFrame {
 		setTitle("Admin - Inserimento Nuovo Ordine");
 		setResizable(false);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setBounds(100,100,768,400);
+		setBounds(100,100,796,400);
 		JPanel pane = new JPanel();
 		setContentPane(pane);
 		getContentPane().setLayout(new MigLayout("", "[82.00,grow][grow][grow,leading]", "[][][][grow][][]"));
 		
-		JPanel panel_2 = new JPanel();
-		panel_2.setBorder(new TitledBorder(null, "Informazioni Ordine", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		pane.add(panel_2, "cell 0 0 3 1,grow");
-		panel_2.setLayout(new MigLayout("", "[329.00][grow][grow,leading]", "[][][][]"));
+		JPanel panelInfo = new JPanel();
+		panelInfo.setBorder(new TitledBorder(null, "Informazioni Ordine", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		pane.add(panelInfo, "cell 0 0 3 1,grow");
+		panelInfo.setLayout(new MigLayout("", "[329.00][][grow][grow,leading][]", "[][][][]"));
 		
 		JLabel lblRistorante = new JLabel("Ristorante");
-		panel_2.add(lblRistorante, "cell 0 0");
+		panelInfo.add(lblRistorante, "cell 0 0");
 		
 		JLabel lblCliente = new JLabel("Cliente");
-		panel_2.add(lblCliente, "cell 1 0");
+		panelInfo.add(lblCliente, "cell 2 0");
 		
 		cmbRistorante = new JComboBox<>();
-		panel_2.add(cmbRistorante, "cell 0 1,growx");
+		panelInfo.add(cmbRistorante, "cell 0 1,growx");
+		
+		tglbtnDisponibili = new JToggleButton("Disponibili");
+		panelInfo.add(tglbtnDisponibili, "cell 1 1");
 		
 		cmbCliente = new JComboBox<>();
-		panel_2.add(cmbCliente, "cell 1 1 2 1,growx");
+		panelInfo.add(cmbCliente, "cell 2 1 2 1,growx");
 		
 		JLabel lblDestinazione = new JLabel("Destinazione (Selezionare un cliente)");
-		panel_2.add(lblDestinazione, "cell 0 2");
+		panelInfo.add(lblDestinazione, "cell 0 2");
 		
 		cmbIndirizzo = new JComboBox<>();
-		panel_2.add(cmbIndirizzo, "cell 0 3 3 1,growx");
+		panelInfo.add(cmbIndirizzo, "cell 0 3 4 1,growx");
 		cmbIndirizzo.setEnabled(false);
 		
 		JSeparator separator = new JSeparator();
 		getContentPane().add(separator, "cell 0 1 3 1");
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(null, "Tipologia", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		pane.add(panel_1, "cell 0 2 3 1,grow");
-		panel_1.setLayout(new MigLayout("", "[82.00,grow][grow][grow,leading]", "[]"));
+		JPanel panelTipo = new JPanel();
+		panelTipo.setBorder(new TitledBorder(null, "Tipologia", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		pane.add(panelTipo, "cell 0 2 3 1,grow");
+		panelTipo.setLayout(new MigLayout("", "[82.00,grow][grow][grow,leading]", "[]"));
 		
 		txtTipo = new JTextField();
-		panel_1.add(txtTipo, "cell 0 0 3 1,growx");
+		panelTipo.add(txtTipo, "cell 0 0 3 1,growx");
 		getTxtTipo().setColumns(10);
 		
 		JPanel panel = new JPanel();
@@ -135,4 +140,7 @@ public class InserisciOrdineView extends JFrame {
 		return lblRemainingChar;
 	}
 
+	public JToggleButton getTglbtnDisponibili() {
+		return tglbtnDisponibili;
+	}
 }

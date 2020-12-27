@@ -15,6 +15,8 @@ public class MainView extends JFrame {
 	private JPanel contentPane;
 	private JButton btnInserisciOrdine;
 	private JButton btnGestisciOrdini;
+	private JButton btnFiltraOrdini;
+	private JButton btnCovidTracking;
 
 	/**
 	 * Create the frame.
@@ -25,14 +27,20 @@ public class MainView extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[][]", "[][]"));
+		contentPane.setLayout(new MigLayout("", "[grow][grow]", "[][][]"));
 		
 		btnGestisciOrdini = new JButton("Gestisci Ordini");
-		contentPane.add(btnGestisciOrdini, "cell 0 1");
+		contentPane.add(btnGestisciOrdini, "cell 0 1,growx");
 		
 		setBtnInserisciOrdine(new JButton("Inserisci Ordine"));
 		
-		contentPane.add(getBtnInserisciOrdine(), "cell 1 1");
+		contentPane.add(getBtnInserisciOrdine(), "cell 1 1,growx");
+		
+		btnFiltraOrdini = new JButton("Filtra Ordini");
+		contentPane.add(btnFiltraOrdini, "cell 0 2,grow");
+		
+		btnCovidTracking = new JButton("Covid Tracking");
+		contentPane.add(btnCovidTracking, "cell 1 2,grow");
 	}
 
 	public JButton getBtnInserisciOrdine() {
@@ -44,5 +52,11 @@ public class MainView extends JFrame {
 	}
 	public JButton getBtnGestisciOrdini() {
 		return btnGestisciOrdini;
+	}
+	public JButton getBtnFiltraOrdini() {
+		return btnFiltraOrdini;
+	}
+	public JButton getBtnCovidTracking() {
+		return btnCovidTracking;
 	}
 }

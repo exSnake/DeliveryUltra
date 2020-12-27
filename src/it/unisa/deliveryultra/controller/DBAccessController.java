@@ -3,6 +3,8 @@
  */
 package it.unisa.deliveryultra.controller;
 
+import java.sql.Connection;
+
 import it.unisa.deliveryultra.model.Database;
 import it.unisa.deliveryultra.view.DBAccessView;
 import it.unisa.deliveryultra.view.MainView;
@@ -32,21 +34,21 @@ public class DBAccessController {
 	
 	public void initialize() {
 		initView();
-		view.getBtnAccedi().addActionListener(e -> AccediBtnClick());
+		view.getBtnAccedi().addActionListener(e -> accediBtnClick());
 	}
 	
-	private void AccediBtnClick() {
+	private void accediBtnClick() {
 		if(!validateForm()) return;
 		this.view.getLblErrors().setText("");
 		updateModel();
 		//If connection successful, main window should be opened
-		if(db.openConnection() != null) {
+		try(Connection conn = db.openConnection()) {
 			view.getLblErrors().setText("Connessione Riuscita");
 			MainViewController mainViewController = new MainViewController(this.db, new MainView());
 			mainViewController.initialize();
 			this.view.getFrmWelcome().dispose();	
-		} else {
-			System.out.println(db.toString());
+		} catch(Exception e) {
+			e.printStackTrace();
 			view.getLblErrors().setText("Connessione Fallita");
 		}
 	}

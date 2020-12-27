@@ -1,6 +1,6 @@
 package it.unisa.deliveryultra.model;
 
-public abstract class Persona {
+public class Persona {
 	private String cf;
 	private String nome;
 	private String cognome;
@@ -14,6 +14,9 @@ public abstract class Persona {
 		this.cognome = cognome;
 		this.telefono = telefono;
 		this.email = email;
+	}
+
+	public Persona() {
 	}
 
 	public String getCf() {

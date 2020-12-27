@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JSeparator;
@@ -38,7 +39,7 @@ public class DBAccessView {
 		getFrmWelcome().getContentPane().setBackground(new Color(102, 204, 255));
 		getFrmWelcome().setTitle("Accesso al DB");
 		getFrmWelcome().setBounds(100, 100, 300, 300);
-		getFrmWelcome().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		getFrmWelcome().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		getFrmWelcome().getContentPane().setLayout(new MigLayout("", "[grow][grow][][][grow]", "[grow][][][][][][]"));
 		
 		txtpnDeliveryUltra = new JTextPane();

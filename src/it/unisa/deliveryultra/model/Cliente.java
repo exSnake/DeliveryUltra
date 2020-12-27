@@ -2,6 +2,7 @@ package it.unisa.deliveryultra.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Cliente {
     private String email;
@@ -9,7 +10,7 @@ public class Cliente {
     private String cognome;
     private String telefono;
     private LocalDate dataReg;
-    private ArrayList<Indirizzo> indirizzi;
+    private List<Indirizzo> indirizzi;
     
     // Costruttore clienti
     public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg) {
@@ -18,11 +19,11 @@ public class Cliente {
         this.cognome = cognome;
         this.telefono = telefono;
         this.dataReg = dataReg;
-        this.indirizzi = new ArrayList<Indirizzo>();
+        this.indirizzi = new ArrayList<>();
     }
     
 	public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg,
-			ArrayList<Indirizzo> indirizzi) {
+			List<Indirizzo> indirizzi) {
 		super();
 		this.email = email;
 		this.nome = nome;
@@ -33,7 +34,7 @@ public class Cliente {
 	}
 
 	public Cliente() {
-		this.indirizzi = new ArrayList<Indirizzo>();
+		this.indirizzi = new ArrayList<>();
 	}
 
 	public void aggiungiIndirizzo(Indirizzo indirizzo) {
@@ -82,11 +83,11 @@ public class Cliente {
 		this.dataReg = date;
 	}
 
-	public ArrayList<Indirizzo> getIndirizzi() {
+	public List<Indirizzo> getIndirizzi() {
 		return indirizzi;
 	}
 
-	public void setIndirizzi(ArrayList<Indirizzo> indirizzi) {
+	public void setIndirizzi(List<Indirizzo> indirizzi) {
 		this.indirizzi = indirizzi;
 	}
 

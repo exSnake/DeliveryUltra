@@ -49,7 +49,6 @@ public class DBMysqlTest extends DBMysql {
 			while (rs.next()) {
 				Indirizzo indirizzo = new Indirizzo(rs.getString("via"), rs.getString("civico"), rs.getString("cap"), rs.getString("citta"),rs.getString("provincia"));
 				cliente.aggiungiIndirizzo(indirizzo);
-				System.out.println(String.format("Aggiunto indirizzo %s a Cliente %s", indirizzo.toString(), cliente.getEmail()));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
