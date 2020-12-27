@@ -16,6 +16,10 @@ import java.awt.Font;
 import java.awt.Color;
 
 public class InserisciOrdineView extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JTextField txtTipo;
 	private JComboBox<Ristorante> cmbRistorante;
 	private JComboBox<Cliente> cmbCliente;
@@ -30,7 +34,7 @@ public class InserisciOrdineView extends JFrame {
 	 */
 	public InserisciOrdineView() {
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setBounds(100,100,768,400);
 		JPanel pane = new JPanel();
 		setContentPane(pane);
@@ -42,16 +46,16 @@ public class InserisciOrdineView extends JFrame {
 		JLabel lblCliente = new JLabel("Cliente");
 		getContentPane().add(lblCliente, "cell 2 0");
 		
-		cmbRistorante = new JComboBox<Ristorante>();
+		cmbRistorante = new JComboBox<>();
 		getContentPane().add(cmbRistorante, "cell 0 1 2 1,growx");
 		
-		cmbCliente = new JComboBox<Cliente>();
+		cmbCliente = new JComboBox<>();
 		getContentPane().add(cmbCliente, "cell 2 1 2 1,growx");
 		
 		JLabel lblDestinazione = new JLabel("Destinazione");
 		getContentPane().add(lblDestinazione, "cell 0 2");
 		
-		cmbIndirizzo = new JComboBox<Indirizzo>();
+		cmbIndirizzo = new JComboBox<>();
 		cmbIndirizzo.setEnabled(false);
 		getContentPane().add(cmbIndirizzo, "cell 0 3 4 1,growx");
 		

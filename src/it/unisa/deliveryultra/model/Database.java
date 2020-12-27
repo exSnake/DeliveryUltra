@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author exSna
@@ -71,5 +72,21 @@ public abstract class Database {
 	public abstract boolean inserisciOrdine(Ordine ordine, Ristorante ristorante, Cliente cliente) throws Exception;
 
 	public abstract boolean assegnaOrdine(Ordine ordine, Persona persona, LocalDateTime ora) throws Exception;
+
+	public abstract List<Ordine> getOrdini() throws Exception;
+
+	public abstract List<Ordine> getOrdiniByRistorante(Ristorante ristorante) throws Exception;
+
+	public abstract boolean eliminaOrdine(Ordine ordine) throws Exception;
+
+	public abstract boolean accettaOrdine(Ordine ordine) throws Exception;
+
+	public abstract boolean consegnaOrdine(Ordine ordine, String nominativo) throws Exception;
+
+	public abstract List<Ordine> getOrdiniInCoda() throws Exception;
+
+	public abstract List<Ordine> getOrdiniInCodaByRistorante(Ristorante ristorante) throws Exception;
+
+	public abstract List<Persona> getPersoneByRistoranteId(int ristoranteId) throws Exception;
 	
 }

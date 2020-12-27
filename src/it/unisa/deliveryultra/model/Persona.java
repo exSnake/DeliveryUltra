@@ -1,15 +1,11 @@
 package it.unisa.deliveryultra.model;
 
-public class Persona {
+public abstract class Persona {
 	private String cf;
 	private String nome;
 	private String cognome;
 	private String telefono;
 	private String email;
-	
-	public Persona() {
-		
-	}
 	
 	public Persona(String cf, String nome, String cognome, String telefono, String email) {
 		super();
@@ -58,6 +54,11 @@ public class Persona {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " - " + nome + " " + cognome;
 	}
 	
 	

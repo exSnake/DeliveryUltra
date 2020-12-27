@@ -11,12 +11,12 @@ public class Ordine {
 	private String tipo;
 	private String descrizione;
 	private String stato;
-	private String stimaOrario;
+	private LocalDateTime stimaOrario;
 	private String personaCf;
-	private String orarioConsegna;
+	private LocalDateTime orarioConsegna;
 
 	public Ordine(int numOrdine, LocalDateTime dataOrdine, int ristoranteId, String clienteEmail, String destinazione,
-			String tipo, String descrizione, String stato, String stimaOrario, String personaCf, String orarioConsegna) {
+			String tipo, String descrizione, String stato, LocalDateTime stimaOrario, String personaCf, LocalDateTime orarioConsegna) {
 		super();
 		this.numOrdine = numOrdine;
 		this.dataOrdine = dataOrdine;
@@ -56,16 +56,23 @@ public class Ordine {
 	public String getStato() { return stato; }
 	public void setStato(String stato) { this.stato = stato; }
 
-	public String getStimaOrario() { return stimaOrario; }
-	public void setStimaOrario(String stimaOrario) { this.stimaOrario = stimaOrario; }
+	public LocalDateTime getStimaOrario() { return stimaOrario; }
+	public void setStimaOrario(LocalDateTime stimaOrario) { this.stimaOrario = stimaOrario; }
 
 	public String getPersonaCf() { return personaCf; }
 	public void setPersonaCf(String personaCf) { this.personaCf = personaCf; }
 
-	public String getOrarioConsegna() { return orarioConsegna; }
-	public void setOrarioConsegna(String orarioConsegna) { this.orarioConsegna = orarioConsegna;}
+	public LocalDateTime getOrarioConsegna() { return orarioConsegna; }
+	public void setOrarioConsegna(LocalDateTime orarioConsegna) { this.orarioConsegna = orarioConsegna;}
 
 	public String getDescrizione() { return descrizione; }
 	public void setDescrizione(String descrizione) { this.descrizione = descrizione; }
+
+	@Override
+	public String toString() {
+		return numOrdine + ", " + dataOrdine + ", " + ristoranteId + ", " + clienteEmail  + ", " + stato
+				+ ", " + stimaOrario + ", " + personaCf + ", " + orarioConsegna;
+	}
+	
 	
 }
