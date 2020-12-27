@@ -14,6 +14,7 @@ import javax.swing.JTextArea;
 import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.Color;
+import javax.swing.border.TitledBorder;
 
 public class InserisciOrdineView extends JFrame {
 	/**
@@ -33,62 +34,72 @@ public class InserisciOrdineView extends JFrame {
 	 * Create the panel.
 	 */
 	public InserisciOrdineView() {
+		setTitle("Admin - Inserimento Nuovo Ordine");
 		setResizable(false);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setBounds(100,100,768,400);
 		JPanel pane = new JPanel();
 		setContentPane(pane);
-		getContentPane().setLayout(new MigLayout("", "[82.00,grow][grow][grow][grow,leading]", "[][][][][][][][][grow][][]"));
+		getContentPane().setLayout(new MigLayout("", "[82.00,grow][grow][grow,leading]", "[][][][grow][][]"));
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBorder(new TitledBorder(null, "Informazioni Ordine", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		pane.add(panel_2, "cell 0 0 3 1,grow");
+		panel_2.setLayout(new MigLayout("", "[329.00][grow][grow,leading]", "[][][][]"));
 		
 		JLabel lblRistorante = new JLabel("Ristorante");
-		getContentPane().add(lblRistorante, "cell 0 0");
+		panel_2.add(lblRistorante, "cell 0 0");
 		
 		JLabel lblCliente = new JLabel("Cliente");
-		getContentPane().add(lblCliente, "cell 2 0");
+		panel_2.add(lblCliente, "cell 1 0");
 		
 		cmbRistorante = new JComboBox<>();
-		getContentPane().add(cmbRistorante, "cell 0 1 2 1,growx");
+		panel_2.add(cmbRistorante, "cell 0 1,growx");
 		
 		cmbCliente = new JComboBox<>();
-		getContentPane().add(cmbCliente, "cell 2 1 2 1,growx");
+		panel_2.add(cmbCliente, "cell 1 1 2 1,growx");
 		
-		JLabel lblDestinazione = new JLabel("Destinazione");
-		getContentPane().add(lblDestinazione, "cell 0 2");
+		JLabel lblDestinazione = new JLabel("Destinazione (Selezionare un cliente)");
+		panel_2.add(lblDestinazione, "cell 0 2");
 		
 		cmbIndirizzo = new JComboBox<>();
+		panel_2.add(cmbIndirizzo, "cell 0 3 3 1,growx");
 		cmbIndirizzo.setEnabled(false);
-		getContentPane().add(cmbIndirizzo, "cell 0 3 4 1,growx");
 		
 		JSeparator separator = new JSeparator();
-		getContentPane().add(separator, "cell 0 4 4 1");
+		getContentPane().add(separator, "cell 0 1 3 1");
 		
-		JLabel lblTipo = new JLabel("Tipologia");
-		getContentPane().add(lblTipo, "cell 0 5,alignx left");
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new TitledBorder(null, "Tipologia", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		pane.add(panel_1, "cell 0 2 3 1,grow");
+		panel_1.setLayout(new MigLayout("", "[82.00,grow][grow][grow,leading]", "[]"));
 		
 		txtTipo = new JTextField();
-		getContentPane().add(getTxtTipo(), "cell 0 6 4 1,growx");
+		panel_1.add(txtTipo, "cell 0 0 3 1,growx");
 		getTxtTipo().setColumns(10);
 		
-		JLabel lblDescrizione = new JLabel("Descrizione");
-		getContentPane().add(lblDescrizione, "cell 0 7");
+		JPanel panel = new JPanel();
+		panel.setBorder(new TitledBorder(null, "Descrizione", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		pane.add(panel, "cell 0 3 3 1,grow");
+		panel.setLayout(new MigLayout("", "[82.00,grow][grow][grow][grow,leading]", "[grow]"));
 		
 		txtDescrizione = new JTextArea();
+		panel.add(txtDescrizione, "cell 0 0 4 1,grow");
 		txtDescrizione.setLineWrap(true);
-		getContentPane().add(getTxtDescrizione(), "cell 0 8 4 1,grow");
 		
 		lblRemainingChar = new JLabel("0/255");
-		getContentPane().add(getLblRemainingChar(), "cell 3 9");
+		getContentPane().add(getLblRemainingChar(), "cell 2 4");
 		
 		lblErrors = new JLabel("");
 		getLblErrors().setForeground(new Color(153, 0, 0));
 		getLblErrors().setFont(new Font("Tahoma", Font.PLAIN, 11));
-		pane.add(getLblErrors(), "cell 0 10");
+		pane.add(getLblErrors(), "cell 0 5");
 		
 		JButton btnAnnulla = new JButton("Annulla");
-		getContentPane().add(btnAnnulla, "cell 2 10,alignx right");
+		getContentPane().add(btnAnnulla, "cell 1 5,grow");
 		
 		btnInserisci = new JButton("Inserisci");
-		getContentPane().add(getBtnInserisci(), "cell 3 10,alignx right");
+		getContentPane().add(getBtnInserisci(), "cell 2 5,growx");
 
 	}
 	

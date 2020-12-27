@@ -14,6 +14,7 @@ public class GestisciOrdiniController {
 	private Database db;
 	private GestisciOrdiniView view;
 	private PersonaSelectDialog personaDialog;
+	private String lastEvent;
 	
 	
 	public GestisciOrdiniController(Database db, GestisciOrdiniView view) {
@@ -23,6 +24,7 @@ public class GestisciOrdiniController {
 	}
 	
 	public void initialize() {
+		setLabelToNull();
 		try {
 			for (Ristorante ristorante : db.getRistoranti()) {
 				view.getCmbRistoranti().addItem(ristorante);
@@ -68,7 +70,7 @@ public class GestisciOrdiniController {
 		if(ordine.getStato().equals("IN ATTESA")) {
 			try {
 				db.accettaOrdine(ordine);
-				onCercaClick();
+				resetForm();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -100,7 +102,7 @@ public class GestisciOrdiniController {
 					return;
 				try {
 					db.assegnaOrdine(ordine, persona, LocalDateTime.now().plusMinutes(30));
-					onCercaClick();
+					resetForm();
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -110,6 +112,7 @@ public class GestisciOrdiniController {
 	}	
 	
 	private void onCercaClick() {
+		lastEvent = "cercaClick";
 		List<Ordine> tmp;
 		Ordine[] ordini;
 		view.getLstOrdini().removeAll();
@@ -146,7 +149,7 @@ public class GestisciOrdiniController {
 					JOptionPane.showMessageDialog(view, "Inserire nome cognome");
 				} else {
 					db.consegnaOrdine(ordine, str);
-					onCercaClick();
+					resetForm();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -159,7 +162,7 @@ public class GestisciOrdiniController {
 		if(!ordine.getStato().equals("CONSEGNATO")) {
 			try {
 				db.eliminaOrdine(ordine);
-				onCercaClick();
+				resetForm();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -167,6 +170,7 @@ public class GestisciOrdiniController {
 	}
 
 	private void onInCodaClick() {
+		lastEvent = "inCodaClick";
 		List<Ordine> tmp;
 		Ordine[] ordini;
 		view.getLstOrdini().removeAll();
@@ -221,6 +225,16 @@ public class GestisciOrdiniController {
 
 	private void onSelectedPerson(ActionEvent e) {
 		
+	}
+	
+	private void resetForm() {
+		if(lastEvent.equals("")) {
+			view.getLstOrdini().removeAll();
+		} else if (lastEvent.equals("cercaClick")) {
+			onCercaClick();
+		} else if (lastEvent.equals("inCodaClick")) {
+			onInCodaClick();
+		}
 	}
 	
 	private void setLabelByRistorante(Ristorante ristorante) {

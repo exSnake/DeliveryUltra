@@ -48,7 +48,7 @@ public class InserisciOrdineController {
 
 	protected void onDescrizioneChange() {
 		int size = this.view.getTxtDescrizione().getText().length();
-		this.view.getLblRemainingChar().setText(size + "/255");
+		this.view.getLblRemainingChar().setText("Caratteri restanti " + size + "/255");
 		if(size > 255) {
 			this.view.getLblRemainingChar().setForeground(new Color(153, 0, 0));
 		} else {
