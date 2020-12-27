@@ -7,20 +7,19 @@ import java.awt.Image;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableRowSorter;
 
 import it.unisa.deliveryultra.model.*;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JList;
-import javax.swing.ListSelectionModel;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Font;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
 
 public class GestisciOrdiniView extends JFrame {
 
@@ -31,11 +30,9 @@ public class GestisciOrdiniView extends JFrame {
 	private JPanel contentPane;
 	private JButton btnCerca;
 	private JComboBox<Ristorante> cmbRistoranti;
-	private JList<Ordine> lstOrdini;
 	private JButton btnAssegna;
 	private JButton btnElimina;
 	private JButton btnConsegna;
-	private JScrollPane scrollPane;
 	private JButton btnAccetta;
 	private JButton btnInCoda;
 	private JLabel lblIcon;
@@ -60,6 +57,10 @@ public class GestisciOrdiniView extends JFrame {
 	private JLabel lblCodaMaxBody;
 	private JLabel lblIconRisto;
 	private JLabel lblVisualizzazioneOrdini;
+	private JPanel panel_1;
+	private JTable table;
+	private OrdineTableModel model;
+	private JScrollPane scrollPane;
 
 	/**
 	 * Launch the application.
@@ -87,7 +88,7 @@ public class GestisciOrdiniView extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[82.00,fill][grow,fill][grow,fill][grow,fill][grow,fill]", "[][][30.00][30.00][30.00][][grow][]"));
+		contentPane.setLayout(new MigLayout("", "[82.00,grow,fill][grow,fill][grow,fill][grow,fill][grow,fill]", "[][][30.00][30.00][30.00][][grow][]"));
 		
 		JLabel lblRistorante = new JLabel("Seleziona un ristorante");
 		contentPane.add(lblRistorante, "cell 0 0 2 1");
@@ -182,12 +183,24 @@ public class GestisciOrdiniView extends JFrame {
 		lblVisualizzazioneOrdini = new JLabel("Visualizzazione Ordini:");
 		contentPane.add(lblVisualizzazioneOrdini, "cell 0 5 2 1");
 		
-		scrollPane = new JScrollPane();
-		contentPane.add(scrollPane, "cell 0 6 5 1,grow");
+		panel_1 = new JPanel();
+		contentPane.add(panel_1, "cell 0 6 5 1,grow");
+		panel_1.setLayout(new MigLayout("", "[grow]", "[][grow]"));
 		
-		lstOrdini = new JList<>();
-		scrollPane.setViewportView(lstOrdini);
-		lstOrdini.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		model = new OrdineTableModel();
+		
+		scrollPane = new JScrollPane();
+		panel_1.add(scrollPane, "flowx,cell 0 1,grow");
+		table = new JTable(model);
+		scrollPane.setViewportView(table);
+		getTable().setShowGrid(false);
+		getTable().setShowHorizontalLines(false);
+		getTable().setShowVerticalLines(false);
+		getTable().setRowMargin(0);
+		getTable().setIntercellSpacing(new Dimension(0, 0));
+		getTable().setFillsViewportHeight(true);
+		TableRowSorter<OrdineTableModel> sorter = new TableRowSorter<>(model);
+		getTable().setRowSorter(sorter);
 		
 		btnElimina = new JButton("Elimina");
 		btnElimina.setEnabled(false);
@@ -211,9 +224,6 @@ public class GestisciOrdiniView extends JFrame {
 	}
 	public JComboBox<Ristorante> getCmbRistoranti() {
 		return cmbRistoranti;
-	}
-	public JList<Ordine> getLstOrdini() {
-		return lstOrdini;
 	}
 	public JButton getBtnAssegna() {
 		return btnAssegna;
@@ -256,5 +266,16 @@ public class GestisciOrdiniView extends JFrame {
 	}
 	public JLabel getLblIndirizzoBody() {
 		return lblIndirizzoBody;
+	}
+	public JTable getTable() {
+		return table;
+	}
+
+	public OrdineTableModel getModel() {
+		return model;
+	}
+
+	public void setModel(OrdineTableModel model) {
+		this.model = model;
 	}
 }

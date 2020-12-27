@@ -29,7 +29,7 @@ public class OrdineTest {
 		String destinazione = cliente.getIndirizzi().get(rnd.nextInt(cliente.getIndirizzi().size())).toString();
 		String desc = descrizione[rnd.nextInt(descrizione.length)];
 		String tip = tipo[rnd.nextInt(tipo.length)];
-		Ordine ordine = new Ordine(0, null, ristorante.getId(), cliente.getEmail(), destinazione, tip, desc, null, null, null, null);
+		Ordine ordine = new Ordine(0, null, ristorante.getId(), cliente.getEmail(), destinazione, tip, desc, null, null, null, null,null);
 		try {
 			db.inserisciOrdine(ordine, ristorante, cliente);
 		} catch (Exception e) {

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.TableRowSorter;
 
 import it.unisa.deliveryultra.model.*;
 import it.unisa.deliveryultra.view.*;
@@ -15,6 +16,7 @@ public class GestisciOrdiniController {
 	private GestisciOrdiniView view;
 	private PersonaSelectDialog personaDialog;
 	private String lastEvent;
+	OrdineTableModel model;
 	
 	
 	public GestisciOrdiniController(Database db, GestisciOrdiniView view) {
@@ -40,7 +42,7 @@ public class GestisciOrdiniController {
 		view.getBtnCerca().addActionListener(e -> onCercaClick());
 		view.getBtnConsegna().addActionListener(e -> onConsegnaClick());
 		view.getBtnElimina().addActionListener(e -> onEliminaClick());
-		view.getLstOrdini().addListSelectionListener(e -> onSelectedOrdineChange(e));
+		view.getTable().getSelectionModel().addListSelectionListener(e -> onSelectedOrdineChange(e));
 		view.getBtnInCoda().addActionListener(e -> onInCodaClick());
 		view.setVisible(true);
 	}
@@ -66,7 +68,7 @@ public class GestisciOrdiniController {
 	}
 
 	private void onAccettaClick() {
-		Ordine ordine = view.getLstOrdini().getSelectedValue();
+		Ordine ordine = view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		if(ordine.getStato().equals("IN ATTESA")) {
 			try {
 				db.accettaOrdine(ordine);
@@ -78,18 +80,18 @@ public class GestisciOrdiniController {
 	}
 
 	private void onAssegnaClick() {
+		Ordine ordine = view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		this.personaDialog = new PersonaSelectDialog();
-		Ordine ordine = view.getLstOrdini().getSelectedValue();
 		if(ordine.getStato().equals("ORDINATO")) {
 			List<Persona> persone;
 			try {
 				persone = db.getPersoneByRistoranteId(ordine.getRistoranteId());
+				if(persone.isEmpty()) {
+					JOptionPane.showMessageDialog(view, "Nessun rider disponibile per la consegna");
+					return;
+				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				return;
-			}
-			if(persone.isEmpty()) {
-				JOptionPane.showMessageDialog(view, "Nessun rider disponibile per la consegna");
 				return;
 			}
 			for (Persona persona : persone) {
@@ -113,35 +115,24 @@ public class GestisciOrdiniController {
 	
 	private void onCercaClick() {
 		lastEvent = "cercaClick";
-		List<Ordine> tmp;
-		Ordine[] ordini;
-		view.getLstOrdini().removeAll();
-		if(view.getCmbRistoranti().getSelectedIndex() == -1) {
-			try {
-				tmp = db.getOrdini();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
+		List<Ordine> ordini;
+		view.getModel().removeAll();
+		try {
+			if(view.getCmbRistoranti().getSelectedIndex() == -1) {
+				ordini = db.getOrdini();
+			} else {
+				Ristorante ristorante = (Ristorante) view.getCmbRistoranti().getSelectedItem();
+				ordini = db.getOrdiniByRistorante(ristorante);
 			}
-			ordini = new Ordine[tmp.size()];
-			tmp.toArray(ordini);
-			view.getLstOrdini().setListData(ordini);
-		} else {
-			Ristorante ristorante = (Ristorante) view.getCmbRistoranti().getSelectedItem();
-			try {
-				tmp = db.getOrdiniByRistorante(ristorante);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
-			ordini = new Ordine[tmp.size()];
-			tmp.toArray(ordini);
-			view.getLstOrdini().setListData(ordini);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
 		}
+		view.getModel().add(ordini);
 	}
 
 	private void onConsegnaClick() {
-		Ordine ordine = view.getLstOrdini().getSelectedValue();
+		Ordine ordine = view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		if(ordine.getStato().equals("ESPLETATO")) {
 			try {
 				String str = JOptionPane.showInputDialog("Inserisci nominativo consegna");
@@ -158,7 +149,7 @@ public class GestisciOrdiniController {
 	}
 
 	private void onEliminaClick() {
-		Ordine ordine = view.getLstOrdini().getSelectedValue();
+		Ordine ordine = view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		if(!ordine.getStato().equals("CONSEGNATO")) {
 			try {
 				db.eliminaOrdine(ordine);
@@ -171,35 +162,24 @@ public class GestisciOrdiniController {
 
 	private void onInCodaClick() {
 		lastEvent = "inCodaClick";
-		List<Ordine> tmp;
-		Ordine[] ordini;
-		view.getLstOrdini().removeAll();
-		if(view.getCmbRistoranti().getSelectedIndex() == -1) {
-			try {
-				tmp = db.getOrdiniInCoda();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
+		List<Ordine> ordini;
+		view.getModel().removeAll();
+		try {
+			if(view.getCmbRistoranti().getSelectedIndex() == -1) {
+				ordini = db.getOrdiniInCoda();
+			} else {
+				Ristorante ristorante = (Ristorante) view.getCmbRistoranti().getSelectedItem();
+				ordini = db.getOrdiniInCodaByRistorante(ristorante);
 			}
-			ordini = new Ordine[tmp.size()];
-			tmp.toArray(ordini);
-			view.getLstOrdini().setListData(ordini);
-		} else {
-			Ristorante ristorante = (Ristorante) view.getCmbRistoranti().getSelectedItem();
-			try {
-				tmp = db.getOrdiniInCodaByRistorante(ristorante);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
-			ordini = new Ordine[tmp.size()];
-			tmp.toArray(ordini);
-			view.getLstOrdini().setListData(ordini);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
 		}
+		view.getModel().add(ordini);
 	}
 
 	private void onSelectedOrdineChange(ListSelectionEvent e) {
-		Ordine ordine = view.getLstOrdini().getSelectedValue();
+		Ordine ordine = view.getTable().getSelectedRow() == -1 ? null : view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		if(ordine == null || ordine.getStato().equals("CONSEGNATO")) {
 			view.getBtnAccetta().setEnabled(false);
 			view.getBtnAssegna().setEnabled(false);
@@ -229,7 +209,7 @@ public class GestisciOrdiniController {
 	
 	private void resetForm() {
 		if(lastEvent.equals("")) {
-			view.getLstOrdini().removeAll();
+			view.getModel().removeAll();
 		} else if (lastEvent.equals("cercaClick")) {
 			onCercaClick();
 		} else if (lastEvent.equals("inCodaClick")) {

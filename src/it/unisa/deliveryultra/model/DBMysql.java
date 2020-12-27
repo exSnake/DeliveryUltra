@@ -238,7 +238,8 @@ public class DBMysql extends Database {
 				var stimaOrario = rs.getTimestamp("stima_orario") == null ? null : rs.getTimestamp("stima_orario").toLocalDateTime();
 				var personaCf = rs.getString("persona_cf");
 				var orarioConsegna = rs.getTimestamp("orario_consegna") == null ? null : rs.getTimestamp("orario_consegna").toLocalDateTime();
-				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna);
+				var nominativo = rs.getString("nominativo_consegna");
+				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna,nominativo);
 				ordini.add(ordine);
 			}
 		}
@@ -257,7 +258,8 @@ public class DBMysql extends Database {
 				var stimaOrario = rs.getTimestamp("stima_orario") == null ? null : rs.getTimestamp("stima_orario").toLocalDateTime();
 				var personaCf = rs.getString("persona_cf");
 				var orarioConsegna = rs.getTimestamp("orario_consegna") == null ? null : rs.getTimestamp("orario_consegna").toLocalDateTime();
-				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna);
+				var nominativo = rs.getString("nominativo_consegna");
+				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna,nominativo);
 				ordini.add(ordine);
 			}
 		}
@@ -384,7 +386,8 @@ public class DBMysql extends Database {
 				var stimaOrario = rs.getTimestamp("stima_orario") == null ? null : rs.getTimestamp("stima_orario").toLocalDateTime();
 				var personaCf = rs.getString("persona_cf");
 				var orarioConsegna = rs.getTimestamp("orario_consegna") == null ? null : rs.getTimestamp("orario_consegna").toLocalDateTime();
-				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna);
+				var nominativo = rs.getString("nominativo_consegna");
+				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna,nominativo);
 				ordini.add(ordine);
 			}
 		}
@@ -403,7 +406,8 @@ public class DBMysql extends Database {
 				var stimaOrario = rs.getTimestamp("stima_orario") == null ? null : rs.getTimestamp("stima_orario").toLocalDateTime();
 				var personaCf = rs.getString("persona_cf");
 				var orarioConsegna = rs.getTimestamp("orario_consegna") == null ? null : rs.getTimestamp("orario_consegna").toLocalDateTime();
-				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna);
+				var nominativo = rs.getString("nominativo_consegna");
+				Ordine ordine = new Ordine(rs.getInt("num_ordine"), rs.getTimestamp("data_ordine").toLocalDateTime(), rs.getInt("ristorante_id"), rs.getString("cliente_email"), rs.getString("destinazione"), rs.getString("tipo"), rs.getString("descrizione"), rs.getString("stato"), stimaOrario,personaCf,orarioConsegna,nominativo);
 				ordini.add(ordine);
 			}
 		}

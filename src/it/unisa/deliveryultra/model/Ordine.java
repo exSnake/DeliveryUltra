@@ -14,9 +14,10 @@ public class Ordine {
 	private LocalDateTime stimaOrario;
 	private String personaCf;
 	private LocalDateTime orarioConsegna;
+	private String nominativoConsegna;
 
 	public Ordine(int numOrdine, LocalDateTime dataOrdine, int ristoranteId, String clienteEmail, String destinazione,
-			String tipo, String descrizione, String stato, LocalDateTime stimaOrario, String personaCf, LocalDateTime orarioConsegna) {
+			String tipo, String descrizione, String stato, LocalDateTime stimaOrario, String personaCf, LocalDateTime orarioConsegna, String nominativoConsegna) {
 		super();
 		this.numOrdine = numOrdine;
 		this.dataOrdine = dataOrdine;
@@ -29,6 +30,7 @@ public class Ordine {
 		this.stimaOrario = stimaOrario;
 		this.personaCf = personaCf;
 		this.orarioConsegna = orarioConsegna;
+		this.setNominativoConsegna(nominativoConsegna);
 	}
 
 	public Ordine() {
@@ -67,6 +69,14 @@ public class Ordine {
 
 	public String getDescrizione() { return descrizione; }
 	public void setDescrizione(String descrizione) { this.descrizione = descrizione; }
+
+	public String getNominativoConsegna() {
+		return nominativoConsegna;
+	}
+
+	public void setNominativoConsegna(String nominativoConsegna) {
+		this.nominativoConsegna = nominativoConsegna;
+	}
 
 	@Override
 	public String toString() {
