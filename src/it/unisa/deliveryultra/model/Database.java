@@ -98,5 +98,9 @@ public abstract class Database {
 	public abstract List<Ristorante> getRistorantiDisponibili() throws SQLException;
 
 	public abstract List<Persona> getPersoneByNominativoConsegna(String nominativo) throws SQLException;
+
+	public abstract List<Rider> getRiderValutabiliByCliente(Cliente cliente) throws SQLException;
+
+	public abstract boolean valutaRider(Cliente cliente, Rider rider, int valutazione) throws SQLException, IOException;
 	
 }

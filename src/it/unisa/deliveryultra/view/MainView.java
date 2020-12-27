@@ -17,6 +17,7 @@ public class MainView extends JFrame {
 	private JButton btnGestisciOrdini;
 	private JButton btnFiltraOrdini;
 	private JButton btnCovidTracking;
+	private JButton btnValutaRider;
 
 	/**
 	 * Create the frame.
@@ -27,7 +28,7 @@ public class MainView extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(new MigLayout("", "[grow][grow]", "[][][]"));
+		contentPane.setLayout(new MigLayout("", "[grow][grow]", "[][][][]"));
 		
 		btnGestisciOrdini = new JButton("Gestisci Ordini");
 		contentPane.add(btnGestisciOrdini, "cell 0 1,growx");
@@ -41,6 +42,9 @@ public class MainView extends JFrame {
 		
 		btnCovidTracking = new JButton("Covid Tracking");
 		contentPane.add(btnCovidTracking, "cell 1 2,grow");
+		
+		btnValutaRider = new JButton("Valuta Rider");
+		contentPane.add(btnValutaRider, "cell 0 3,grow");
 	}
 
 	public JButton getBtnInserisciOrdine() {
@@ -58,5 +62,8 @@ public class MainView extends JFrame {
 	}
 	public JButton getBtnCovidTracking() {
 		return btnCovidTracking;
+	}
+	public JButton getBtnValutaRider() {
+		return btnValutaRider;
 	}
 }

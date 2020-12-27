@@ -14,42 +14,50 @@ import java.util.List;
  *
  */
 public class DBMysql extends Database {
-	private static final String getRistoranti = "SELECT * FROM `ristoranti`";
-	private static final String getClienti = "SELECT * FROM `clienti`";
-	private static final String getOrdini = "SELECT * FROM `ordini` ORDER BY `data_ordine` DESC";
-	private static final String getOrdiniInCoda = "SELECT * FROM `ordini` WHERE `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC";
-	private static final String getOrdiniByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? ORDER BY `data_ordine` DESC";
-	private static final String getOrdiniInCodaByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? AND `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC";
-	private static final String getOrdiniByCliente = "SELECT * FROM ordini WHERE cliente_email = ?";
+	private static final String getRistoranti = "SELECT * FROM `ristoranti`;";
+	private static final String getClienti = "SELECT * FROM `clienti`;";
+	private static final String getOrdini = "SELECT * FROM `ordini` ORDER BY `data_ordine` DESC;";
+	private static final String getOrdiniInCoda = "SELECT * FROM `ordini` WHERE `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC;";
+	private static final String getOrdiniByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? ORDER BY `data_ordine` DESC;";
+	private static final String getOrdiniInCodaByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? AND `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC;";
+	private static final String getOrdiniByCliente = "SELECT * FROM ordini WHERE cliente_email = ?;";
 	private static final String getOrdiniConsegnatiDaRiderNonValutati = "SELECT * FROM ordini o WHERE o.persona_cf NOT IN (SELECT rider_cf FROM valutazioni) AND persona_cf IS NOT NULL;";
 	
-	private static final String getRistorantiDisponibiliByCoda = "SELECT * FROM ristoranti r WHERE r.ordini_coda < r.coda_max";
-	private static final String getRistoranteDisponibileByCoda = "SELECT ordini_coda < ristoranti.coda_max as disponibile FROM ristoranti WHERE ristoranti.id = ?";
+	private static final String getRistorantiDisponibiliByCoda = "SELECT * FROM ristoranti r WHERE r.ordini_coda < r.coda_max;";
+	private static final String getRistoranteDisponibileByCoda = "SELECT ordini_coda < ristoranti.coda_max as disponibile FROM ristoranti WHERE ristoranti.id = ?;";
 	
 	private static final String getPersoneByNominativoConsegnaUltimaSettimana = "SELECT p.nome, p.cognome, p.telefono FROM ordini o "
 																+ "LEFT JOIN persone p on p.cf = o.persona_cf "
 																+ "WHERE nominativo_consegna = ? AND data_ordine >= CURDATE() - INTERVAL + 7 DAY;";
 	
-	private static final String getValutazioniByCliente = "SELECT * FROM valutazioni WHERE cliente_email = ?";
+	private static final String getValutazioniByCliente = "SELECT * FROM valutazioni WHERE cliente_email = ?;";
+	private static final String setValutazioneRider = "INSERT INTO `valutazioni` (`rider_cf`, `cliente_email`, `data_valutazione`, `valutazione`) VALUES (?, ?, ?, ?);";
+	private static final String setNuovoRiderScoreMedio = "UPDATE riders SET score_medio = (score_medio * num_valutazioni + ?) / (num_valutazioni + 1), "
+																		+ "num_valutazioni = num_valutazioni + 1 WHERE persona_cf = ?;";
+	private static final String getRidersValutabileByCliente = "SELECT * FROM riders r "
+																+ "LEFT JOIN persone p on p.cf = r.persona_cf "
+																+ "WHERE persona_cf NOT IN (SELECT v.rider_cf FROM valutazioni v WHERE v.cliente_email = ?) "
+																+ "AND persona_cf IN (SELECT o.persona_cf FROM ordini o WHERE o.persona_cf = r.persona_cf AND cliente_email = ?);";
 	private static final String getRidersByRistorante = "SELECT p.*, r.* FROM deliveries d "
 														+ "JOIN affidi a on d.codice = a.delivery_codice "
 														+ "    JOIN impieghi i on a.societa_piva = i.societa_piva "
 														+ "        JOIN persone p on p.cf = i.rider_persona_cf "
 														+ "            JOIN riders r on r.persona_cf = p.cf "
-														+ "WHERE d.ristorante_id = ?";
+														+ "WHERE d.ristorante_id = ?;";
 	private static final String getDipendentiByRistorante = "SELECT p.*, d2.* FROM deliveries d "
 														+ "JOIN dipendenti d2 on d.codice = d2.delivery_codice "
 														+ "JOIN persone p on p.cf = d2.persona_cf "
-														+ "WHERE ristorante_id = ?";
-	private static final String accettaOrdine = "UPDATE `ordini` SET `stato` = ?, `stima_orario` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?";
-	private static final String consegnaOrdine = "UPDATE `ordini` SET `stato` = ?, `orario_consegna` = ?, `nominativo_consegna` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?";
+														+ "WHERE ristorante_id = ?;";
+	private static final String accettaOrdine = "UPDATE `ordini` SET `stato` = ?, `stima_orario` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
+	private static final String consegnaOrdine = "UPDATE `ordini` SET `stato` = ?, `orario_consegna` = ?, `nominativo_consegna` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
 	private static final String inserisciOrdine = "INSERT INTO ordini (`num_ordine`,`data_ordine`,`ristorante_id`,`cliente_email`,`destinazione`,`tipo`, `descrizione`, `stato`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
-	private static final String eliminaOrdine = "DELETE FROM `ordini` WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?";
-	private static final String queryGetIndirizziByCliente = "SELECT * FROM indirizzi WHERE cliente_email = ?";
+	private static final String eliminaOrdine = "DELETE FROM `ordini` WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
+	private static final String queryGetIndirizziByCliente = "SELECT * FROM indirizzi WHERE cliente_email = ?;";
 	private static final String getNumOrdineByRestaurant = "SELECT COUNT(num_ordine) FROM `ordini` o WHERE `o`.`ristorante_id` =? AND DATE(`o`.`data_ordine`) =?;";
 	private static final String incrementaCodaOrdini = "UPDATE `ristoranti` SET `ordini_coda` = `ordini_coda` + 1 WHERE `id` = ?;";
 	private static final String decrementaCodaOrdini = "UPDATE `ristoranti` SET `ordini_coda` = `ordini_coda` - 1 WHERE `id` = ?;";
-	private static final String assegnaOrdine = "UPDATE `ordini` SET `stato` = ?, `persona_cf` = ?, `stima_orario` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?";
+	private static final String assegnaOrdine = "UPDATE `ordini` SET `stato` = ?, `persona_cf` = ?, `stima_orario` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
+	
 	private static final String DBMS_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static final String ARGUMENTS = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
@@ -100,7 +108,7 @@ public class DBMysql extends Database {
 			stmt.setInt(6, ordine.getRistoranteId());
 			queryRes = stmt.executeUpdate() == 1;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
 		closeConnection(conn);
@@ -199,7 +207,6 @@ public class DBMysql extends Database {
 				indirizzi.add(indirizzo);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
 			closeConnection(conn);
 			throw e;
 		}
@@ -252,9 +259,10 @@ public class DBMysql extends Database {
 				ordini.add(ordine);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ordini;
 	}
 
@@ -275,9 +283,10 @@ public class DBMysql extends Database {
 				ordini.add(ordine);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ordini;
 	}
 
@@ -298,7 +307,7 @@ public class DBMysql extends Database {
 				ordini.add(ordine);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
 		return ordini;
@@ -320,9 +329,10 @@ public class DBMysql extends Database {
 				ordini.add(ordine);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ordini;
 	}
 
@@ -342,9 +352,10 @@ public class DBMysql extends Database {
 				ordini.add(ordine);
 			} 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ordini;
 	}
 
@@ -365,9 +376,10 @@ public class DBMysql extends Database {
 				ordini.add(ordine);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ordini;
 	}
 
@@ -384,7 +396,7 @@ public class DBMysql extends Database {
 				persone.add(dipendente);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
 		try (PreparedStatement stmt = conn.prepareStatement(getRidersByRistorante)) {
@@ -395,9 +407,10 @@ public class DBMysql extends Database {
 				persone.add(rider);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return persone;
 	}
 
@@ -417,9 +430,10 @@ public class DBMysql extends Database {
 				ristoranti.add(ristorante);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ristoranti;
 	}
 
@@ -436,9 +450,10 @@ public class DBMysql extends Database {
 				valutazioni.add(val);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return valutazioni;
 	}
 
@@ -475,6 +490,7 @@ public class DBMysql extends Database {
 			}
 		} catch (Exception e) {
 			conn.rollback();
+			closeConnection(conn);
 			throw e;
 		}
 
@@ -496,6 +512,7 @@ public class DBMysql extends Database {
 			queryRes = stmt.executeUpdate() == 1;
 		} catch (Exception e) {
 			conn.rollback();
+			closeConnection(conn);
 			throw e;
 		}
 
@@ -506,6 +523,7 @@ public class DBMysql extends Database {
 				queryRes = stmt.executeUpdate() == 1;
 			} catch (Exception e) {
 				conn.rollback();
+				closeConnection(conn);
 				throw e;
 			}
 		}
@@ -542,9 +560,10 @@ public class DBMysql extends Database {
 			if(rs.next())
 				queryRes = rs.getBoolean("disponibile");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return queryRes;
 	}
 
@@ -565,9 +584,10 @@ public class DBMysql extends Database {
 				ristoranti.add(ristorante);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			closeConnection(conn);
 			throw e;
 		}
+		closeConnection(conn);
 		return ristoranti;
 	}
 
@@ -586,10 +606,68 @@ public class DBMysql extends Database {
 				persone.add(persona);
 			}
 		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return persone;
+	}
+
+	@Override
+	public List<Rider> getRiderValutabiliByCliente(Cliente cliente) throws SQLException {
+		List<Rider> riders = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null) return riders;
+		try (PreparedStatement stmt = conn.prepareStatement(getRidersValutabileByCliente)) {
+			stmt.setString(1, cliente.getEmail());
+			stmt.setString(2, cliente.getEmail());
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Rider rider = new Rider(rs.getString("cf"), rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), rs.getString("email"), rs.getBoolean("disponibilita"), rs.getDouble("score_medio"), rs.getInt("num_valutazioni"), rs.getInt("num_impiego"), rs.getDate("data_primo_impiego").toLocalDate(), rs.getBoolean("automunito"), rs.getString("targa"), rs.getString("tipo_veicolo"));
+				riders.add(rider);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
 			e.printStackTrace();
 			throw e;
 		}
-		return persone;
+		closeConnection(conn);
+		return riders;
+	}
+
+	@Override
+	public boolean valutaRider(Cliente cliente, Rider rider, int valutazione) throws SQLException, IOException {
+		boolean queryRes = false;
+		Connection conn = openConnection();
+		if(conn == null) return queryRes;
+		conn.setAutoCommit(false);
+		try (PreparedStatement stmt = conn.prepareStatement(setValutazioneRider)) {
+			stmt.setString(1, rider.getCf());
+			stmt.setString(2, cliente.getEmail());
+			stmt.setDate(3, java.sql.Date.valueOf(LocalDate.now()));
+			stmt.setInt(4, valutazione);
+			queryRes = stmt.executeUpdate() == 1;
+			if(!queryRes)
+				throw new IOException("Errore nell'inserimento della valutazione");
+		} catch (Exception e) {
+			conn.rollback();
+			closeConnection(conn);
+			throw e;
+		}
+		try(PreparedStatement stmt = conn.prepareStatement(setNuovoRiderScoreMedio)){
+			stmt.setInt(1, valutazione);
+			stmt.setString(2, rider.getCf());
+			queryRes = stmt.executeUpdate() == 1;
+			if(!queryRes)
+				throw new IOException("Errore nell'aggiornamento dello scoremedio");
+		} catch (Exception e) {
+			conn.rollback();
+			closeConnection(conn);
+			throw e;
+		}
+		conn.commit();
+		closeConnection(conn);
+		return queryRes;
 	}
 
 }

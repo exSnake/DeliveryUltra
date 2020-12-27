@@ -1,11 +1,7 @@
 package it.unisa.deliveryultra.controller;
 
 import it.unisa.deliveryultra.model.Database;
-import it.unisa.deliveryultra.view.FiltraOrdiniView;
-import it.unisa.deliveryultra.view.GestisciOrdiniView;
-import it.unisa.deliveryultra.view.InserisciOrdineView;
-import it.unisa.deliveryultra.view.MainView;
-import it.unisa.deliveryultra.view.TrackingCovidView;
+import it.unisa.deliveryultra.view.*;
 
 public class MainViewController {
 	private Database db;
@@ -28,9 +24,15 @@ public class MainViewController {
 		this.view.getBtnGestisciOrdini().addActionListener(e -> gestisciOrdiniShow());
 		this.view.getBtnFiltraOrdini().addActionListener(e -> filtraOrdiniShow());
 		this.view.getBtnCovidTracking().addActionListener(e -> covidTrackingShow());
+		this.view.getBtnValutaRider().addActionListener(e -> valutaRiderShow());
 		this.view.setVisible(true);
 	}
 	
+	private void valutaRiderShow() {
+		ValutazioneRiderController valutazioneRiderController = new ValutazioneRiderController(this.db, new ValutazioneRiderView());
+		valutazioneRiderController.initialize();
+	}
+
 	private void covidTrackingShow() {
 		TrackingCovidController trackingCovidController = new TrackingCovidController(this.db, new TrackingCovidView());
 		trackingCovidController.initialize();
