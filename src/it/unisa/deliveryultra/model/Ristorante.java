@@ -151,6 +151,10 @@ public class Ristorante {
 	public String toString() {
 		return denominazione + ", " + citta + ", (" + provincia + ")";
 	}
+
+	public String getIndirizzoCompleto() {
+		return String.format("%s, %s - %s %s (%s)", getVia(), getCivico(), getCap(), getCitta(), getProvincia());
+	}
 	
 	
 
