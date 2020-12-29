@@ -7,7 +7,6 @@ import javax.swing.border.EmptyBorder;
 import it.unisa.deliveryultra.model.Persona;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,9 +24,6 @@ public class TrackingCovidView extends JFrame {
 	private JPanel panelList;
 	private JList<Persona> lstPersone;
 
-	/**
-	 * Create the frame.
-	 */
 	public TrackingCovidView() {
 		setTitle("Contact Tracing - Covid");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);

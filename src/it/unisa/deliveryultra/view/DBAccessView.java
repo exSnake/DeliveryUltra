@@ -31,9 +31,6 @@ public class DBAccessView {
 	private JLabel lblDbName;
 	private JTextField txtDbName;
 
-	/**
-	 * Crea la finestra principale.
-	 */
 	public DBAccessView() {
 		setFrmWelcome(new JFrame());
 		getFrmWelcome().getContentPane().setBackground(new Color(102, 204, 255));

@@ -21,9 +21,6 @@ import javax.swing.JScrollPane;
 
 public class FiltraOrdiniView extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JButton btnCerca;
@@ -51,9 +48,7 @@ public class FiltraOrdiniView extends JFrame {
 	private OrdineTableModel model;
 	private JScrollPane scrollPane;
 	private JButton btnOrdiniValutabili;
-	/**
-	 * Create the frame.
-	 */
+
 	public FiltraOrdiniView() {
 		setTitle("Clienti - Gestione Ordini");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);

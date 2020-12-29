@@ -15,6 +15,14 @@ public class Dipendente extends Persona {
 		this.deliveryCodice = deliveryCodice;
 	}
 
+	public Dipendente(String cf, String nome, String cognome, String telefono, String email, String stato,
+			int anniEsperienza, String curriculum) {
+		super(cf, nome, cognome, telefono, email);
+		this.stato = stato;
+		this.anniEsperienza = anniEsperienza;
+		this.curriculum = curriculum;
+	}
+
 	public String getStato() {
 		return stato;
 	}

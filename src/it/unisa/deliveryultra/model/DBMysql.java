@@ -15,13 +15,20 @@ import java.util.List;
  */
 public class DBMysql extends Database {
 	private static final String getRistoranti = "SELECT * FROM `ristoranti`;";
+	private static final String getRistoranteEs9 = "SELECT * FROM `ristoranti` WHERE `id` in ("
+													+ "SELECT `ristorante_id` FROM `deliveries` "
+													+ "LEFT JOIN `affidi` a on `deliveries`.`codice` = `a`.`delivery_codice` "
+													+ "LEFT JOIN `societa` s on `a`.`societa_piva` = `s`.`piva` "
+													+ "WHERE `tipologia` = \"Interno\" OR `s`.`denominazione` = \"Food Delivery\");";
+	
 	private static final String getClienti = "SELECT * FROM `clienti`;";
 	private static final String getOrdini = "SELECT * FROM `ordini` ORDER BY `data_ordine` DESC;";
+	private static final String getRiders = "SELECT * FROM `riders` r LEFT JOIN `persone` p ON `r`.`persona_cf` = `p`.`cf`";
 	private static final String getOrdiniInCoda = "SELECT * FROM `ordini` WHERE `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC;";
-	private static final String getOrdiniByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? ORDER BY `data_ordine` DESC;";
+	private static final String getOrdiniByRistorante = "SELECT * FROM `ordini` WHERE ristorante_id = ? ORDER BY `data_ordine` DESC;";
 	private static final String getOrdiniInCodaByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? AND `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC;";
 	private static final String getOrdiniByCliente = "SELECT * FROM ordini WHERE cliente_email = ?;";
-	private static final String getOrdiniConsegnatiDaRiderNonValutati = "SELECT * FROM ordini o WHERE o.persona_cf NOT IN (SELECT rider_cf FROM valutazioni) AND persona_cf IS NOT NULL;";
+	private static final String getOrdiniConsegnatiDaRiderNonValutati = "SELECT * FROM ordini o WHERE persona_cf IS NOT NULL AND o.persona_cf NOT IN (SELECT rider_cf as cf FROM valutazioni UNION SELECT persona_cf FROM dipendenti);";
 	
 	private static final String getRistorantiDisponibiliByCoda = "SELECT * FROM ristoranti r WHERE r.ordini_coda < r.coda_max;";
 	private static final String getRistoranteDisponibileByCoda = "SELECT ordini_coda < ristoranti.coda_max as disponibile FROM ristoranti WHERE ristoranti.id = ?;";
@@ -31,6 +38,11 @@ public class DBMysql extends Database {
 																+ "WHERE nominativo_consegna = ? AND data_ordine >= CURDATE() - INTERVAL + 7 DAY;";
 	
 	private static final String getValutazioniByCliente = "SELECT * FROM valutazioni WHERE cliente_email = ?;";
+	private static final String getValutazioniByRider = "SELECT * FROM valutazioni WHERE rider_cf = ?";
+	private static final String getValutazioniBasseByRider = "SELECT * FROM valutazioni v "
+																+ "LEFT JOIN riders r ON r.persona_cf = v.rider_cf "
+																+ "WHERE rider_cf = ? AND data_valutazione >= CURDATE() - INTERVAL + 7 DAY "
+																+ "AND v.valutazione < r.score_medio;";
 	private static final String setValutazioneRider = "INSERT INTO `valutazioni` (`rider_cf`, `cliente_email`, `data_valutazione`, `valutazione`) VALUES (?, ?, ?, ?);";
 	private static final String setNuovoRiderScoreMedio = "UPDATE riders SET score_medio = (score_medio * num_valutazioni + ?) / (num_valutazioni + 1), "
 																		+ "num_valutazioni = num_valutazioni + 1 WHERE persona_cf = ?;";
@@ -48,6 +60,8 @@ public class DBMysql extends Database {
 														+ "JOIN dipendenti d2 on d.codice = d2.delivery_codice "
 														+ "JOIN persone p on p.cf = d2.persona_cf "
 														+ "WHERE ristorante_id = ?;";
+	private static final String getImpieghiByRider = "SELECT * FROM impieghi WHERE rider_persona_cf = ?";
+	
 	private static final String accettaOrdine = "UPDATE `ordini` SET `stato` = ?, `stima_orario` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
 	private static final String consegnaOrdine = "UPDATE `ordini` SET `stato` = ?, `orario_consegna` = ?, `nominativo_consegna` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
 	private static final String inserisciOrdine = "INSERT INTO ordini (`num_ordine`,`data_ordine`,`ristorante_id`,`cliente_email`,`destinazione`,`tipo`, `descrizione`, `stato`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
@@ -57,6 +71,10 @@ public class DBMysql extends Database {
 	private static final String incrementaCodaOrdini = "UPDATE `ristoranti` SET `ordini_coda` = `ordini_coda` + 1 WHERE `id` = ?;";
 	private static final String decrementaCodaOrdini = "UPDATE `ristoranti` SET `ordini_coda` = `ordini_coda` - 1 WHERE `id` = ?;";
 	private static final String assegnaOrdine = "UPDATE `ordini` SET `stato` = ?, `persona_cf` = ?, `stima_orario` = ? WHERE `num_ordine` = ? AND `data_ordine` = ? AND `ristorante_id` = ?;";
+	
+	private static final String inserisciDeliveryInternoPerRistorante = "INSERT INTO deliveries (ristorante_id, tipologia, descrizione, data_inizio, cadenza) VALUES (?, ?, ?, ?, ?);";
+	private static final String inserisciPersona = "INSERT INTO `persone` (nome, cognome, cf,email, telefono) VALUES (?, ?, ?, ?, ?);";
+	private static final String inserisciDipendente = "INSERT INTO `dipendenti` (persona_cf, stato, anni_esperienza, curriculum, delivery_codice) VALUES (?, ?, ?, ?, ?);";
 	
 	private static final String DBMS_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static final String ARGUMENTS = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
@@ -114,6 +132,23 @@ public class DBMysql extends Database {
 		closeConnection(conn);
 		if (!queryRes)
 			throw new IOException("Errore assegnazione ordine");
+		return queryRes;
+	}
+
+	@Override
+	public boolean checkRistoranteDisponibile(Ristorante ristorante) throws SQLException {
+		boolean queryRes = false;
+		Connection conn = openConnection();
+		try(PreparedStatement stmt = conn.prepareStatement(getRistoranteDisponibileByCoda)){
+			stmt.setInt(1, ristorante.getId());
+			ResultSet rs = stmt.executeQuery();
+			if(rs.next())
+				queryRes = rs.getBoolean("disponibile");
+		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
 		return queryRes;
 	}
 
@@ -192,7 +227,7 @@ public class DBMysql extends Database {
 			throw new IOException("Errore nell'eliminazione dell'ordine");
 		return queryRes;
 	}
-
+	
 	@Override
 	public ArrayList<Indirizzo> getClienteIndirizzi(Cliente cliente) throws SQLException {
 		ArrayList<Indirizzo> indirizzi = new ArrayList<>();
@@ -213,7 +248,7 @@ public class DBMysql extends Database {
 		closeConnection(conn);
 		return indirizzi;
 	}
-	
+
 	@Override
 	public ArrayList<Cliente> getClienti() throws SQLException {
 		ArrayList<Cliente> clienti = new ArrayList<>();
@@ -384,6 +419,28 @@ public class DBMysql extends Database {
 	}
 
 	@Override
+	public List<Persona> getPersoneByNominativoConsegna(String nominativo) throws SQLException {
+		List<Persona> persone = new ArrayList<>();
+		Connection conn = openConnection();
+		if (conn == null) return persone;
+		try (PreparedStatement stmt = conn.prepareStatement(getPersoneByNominativoConsegnaUltimaSettimana)) {
+			stmt.setString(1, nominativo);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Persona persona = new Persona();
+				persona.setNome(rs.getString("nome"));
+				persona.setCognome(rs.getString("cognome"));
+				persone.add(persona);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return persone;
+	}
+
+	@Override
 	public List<Persona> getPersoneByRistoranteId(int ristoranteId) throws SQLException {
 		List<Persona> persone = new ArrayList<>();
 		Connection conn = openConnection();
@@ -415,12 +472,58 @@ public class DBMysql extends Database {
 	}
 
 	@Override
-	public ArrayList<Ristorante> getRistoranti() throws SQLException {
-		ArrayList<Ristorante> ristoranti = new ArrayList<>();
+	public List<Rider> getRiderValutabiliByCliente(Cliente cliente) throws SQLException {
+		List<Rider> riders = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null) return riders;
+		try (PreparedStatement stmt = conn.prepareStatement(getRidersValutabileByCliente)) {
+			stmt.setString(1, cliente.getEmail());
+			stmt.setString(2, cliente.getEmail());
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Rider rider = new Rider(rs.getString("cf"), rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), rs.getString("email"), rs.getBoolean("disponibilita"), rs.getDouble("score_medio"), rs.getInt("num_valutazioni"), rs.getInt("num_impiego"), rs.getDate("data_primo_impiego").toLocalDate(), rs.getBoolean("automunito"), rs.getString("targa"), rs.getString("tipo_veicolo"));
+				riders.add(rider);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
+			e.printStackTrace();
+			throw e;
+		}
+		closeConnection(conn);
+		return riders;
+	}
+
+	@Override
+	public List<Ristorante> getRistoranti() throws SQLException {
+		List<Ristorante> ristoranti = new ArrayList<>();
 		Connection conn = openConnection();
 		if (conn == null) return ristoranti;
 		try (Statement stmt = conn.createStatement()) {
 			ResultSet rs = stmt.executeQuery(getRistoranti);
+			while (rs.next()) {
+				Ristorante ristorante = new Ristorante(rs.getInt("id"), rs.getString("piva"),
+						rs.getString("denominazione"), rs.getString("ragione_sociale"), rs.getString("tipologia"),
+						rs.getInt("ordini_coda"), rs.getInt("coda_max"), rs.getString("telefono"),
+						rs.getString("email"), rs.getString("via"), rs.getString("civico"), rs.getString("cap"),
+						rs.getString("citta"), rs.getString("provincia"));
+				ristoranti.add(ristorante);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return ristoranti;
+	}
+
+	@Override
+	public List<Ristorante> getRistorantiDisponibili() throws SQLException {
+		//TODO: Verificare anche l'orario di apertura/chiusura
+		List<Ristorante> ristoranti = new ArrayList<>();
+		Connection conn = openConnection();
+		if (conn == null) return ristoranti;
+		try (Statement stmt = conn.createStatement()) {
+			ResultSet rs = stmt.executeQuery(getRistorantiDisponibiliByCoda);
 			while (rs.next()) {
 				Ristorante ristorante = new Ristorante(rs.getInt("id"), rs.getString("piva"),
 						rs.getString("denominazione"), rs.getString("ragione_sociale"), rs.getString("tipologia"),
@@ -551,91 +654,6 @@ public class DBMysql extends Database {
 	}
 
 	@Override
-	public boolean checkRistoranteDisponibile(Ristorante ristorante) throws SQLException {
-		boolean queryRes = false;
-		Connection conn = openConnection();
-		try(PreparedStatement stmt = conn.prepareStatement(getRistoranteDisponibileByCoda)){
-			stmt.setInt(1, ristorante.getId());
-			ResultSet rs = stmt.executeQuery();
-			if(rs.next())
-				queryRes = rs.getBoolean("disponibile");
-		} catch (SQLException e) {
-			closeConnection(conn);
-			throw e;
-		}
-		closeConnection(conn);
-		return queryRes;
-	}
-
-	@Override
-	public List<Ristorante> getRistorantiDisponibili() throws SQLException {
-		//TODO: Verificare anche l'orario di apertura/chiusura
-		List<Ristorante> ristoranti = new ArrayList<>();
-		Connection conn = openConnection();
-		if (conn == null) return ristoranti;
-		try (Statement stmt = conn.createStatement()) {
-			ResultSet rs = stmt.executeQuery(getRistorantiDisponibiliByCoda);
-			while (rs.next()) {
-				Ristorante ristorante = new Ristorante(rs.getInt("id"), rs.getString("piva"),
-						rs.getString("denominazione"), rs.getString("ragione_sociale"), rs.getString("tipologia"),
-						rs.getInt("ordini_coda"), rs.getInt("coda_max"), rs.getString("telefono"),
-						rs.getString("email"), rs.getString("via"), rs.getString("civico"), rs.getString("cap"),
-						rs.getString("citta"), rs.getString("provincia"));
-				ristoranti.add(ristorante);
-			}
-		} catch (SQLException e) {
-			closeConnection(conn);
-			throw e;
-		}
-		closeConnection(conn);
-		return ristoranti;
-	}
-
-	@Override
-	public List<Persona> getPersoneByNominativoConsegna(String nominativo) throws SQLException {
-		List<Persona> persone = new ArrayList<>();
-		Connection conn = openConnection();
-		if (conn == null) return persone;
-		try (PreparedStatement stmt = conn.prepareStatement(getPersoneByNominativoConsegnaUltimaSettimana)) {
-			stmt.setString(1, nominativo);
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				Persona persona = new Persona();
-				persona.setNome(rs.getString("nome"));
-				persona.setCognome(rs.getString("cognome"));
-				persone.add(persona);
-			}
-		} catch (SQLException e) {
-			closeConnection(conn);
-			throw e;
-		}
-		closeConnection(conn);
-		return persone;
-	}
-
-	@Override
-	public List<Rider> getRiderValutabiliByCliente(Cliente cliente) throws SQLException {
-		List<Rider> riders = new ArrayList<>();
-		Connection conn = openConnection();
-		if(conn == null) return riders;
-		try (PreparedStatement stmt = conn.prepareStatement(getRidersValutabileByCliente)) {
-			stmt.setString(1, cliente.getEmail());
-			stmt.setString(2, cliente.getEmail());
-			ResultSet rs = stmt.executeQuery();
-			while (rs.next()) {
-				Rider rider = new Rider(rs.getString("cf"), rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), rs.getString("email"), rs.getBoolean("disponibilita"), rs.getDouble("score_medio"), rs.getInt("num_valutazioni"), rs.getInt("num_impiego"), rs.getDate("data_primo_impiego").toLocalDate(), rs.getBoolean("automunito"), rs.getString("targa"), rs.getString("tipo_veicolo"));
-				riders.add(rider);
-			}
-		} catch (SQLException e) {
-			closeConnection(conn);
-			e.printStackTrace();
-			throw e;
-		}
-		closeConnection(conn);
-		return riders;
-	}
-
-	@Override
 	public boolean valutaRider(Cliente cliente, Rider rider, int valutazione) throws SQLException, IOException {
 		boolean queryRes = false;
 		Connection conn = openConnection();
@@ -660,6 +678,163 @@ public class DBMysql extends Database {
 			queryRes = stmt.executeUpdate() == 1;
 			if(!queryRes)
 				throw new IOException("Errore nell'aggiornamento dello scoremedio");
+		} catch (Exception e) {
+			conn.rollback();
+			closeConnection(conn);
+			throw e;
+		}
+		conn.commit();
+		closeConnection(conn);
+		return queryRes;
+	}
+
+	@Override
+	public List<Valutazione> getValutazioniByRider(Rider rider) throws SQLException {
+		List<Valutazione> valutazioni = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null) return valutazioni;
+		try(PreparedStatement stmt = conn.prepareStatement(getValutazioniByRider)){
+			stmt.setString(1, rider.getCf());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Valutazione val = new Valutazione(rs.getString("rider_cf"), rs.getString("cliente_email"), rs.getDate("data_valutazione").toLocalDate(),rs.getInt("valutazione"));
+				valutazioni.add(val);
+			}
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return valutazioni;
+	}
+
+	@Override
+	public List<Impiego> getImpieghiByRider(Rider rider) throws SQLException {
+		List<Impiego> impieghi = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null) return impieghi;
+		try(PreparedStatement stmt = conn.prepareStatement(getImpieghiByRider)){
+			stmt.setString(1, rider.getCf());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Impiego imp = new Impiego(rs.getString("societa_piva"), rs.getString("rider_persona_cf"), rs.getDouble("quota_oraria"), rs.getDate("data_impiego").toLocalDate());
+				impieghi.add(imp);
+			}
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return impieghi;
+	}
+
+	@Override
+	public List<Rider> getRiders() throws SQLException {
+		List<Rider> riders = new ArrayList<>();
+		Connection conn = openConnection();
+		if (conn == null) return riders;
+		try (Statement stmt = conn.createStatement()) {
+			ResultSet rs = stmt.executeQuery(getRiders);
+			while (rs.next()) {
+				Rider rider = new Rider(rs.getString("cf"), rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), rs.getString("email"), rs.getBoolean("disponibilita"), rs.getDouble("score_medio"), rs.getInt("num_valutazioni"), rs.getInt("num_impiego"), rs.getDate("data_primo_impiego").toLocalDate(), rs.getBoolean("automunito"), rs.getString("targa"), rs.getString("tipo_veicolo"));
+				riders.add(rider);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return riders;
+	}
+
+	@Override
+	public List<Ristorante> getRistorantiEs9() throws SQLException {
+		List<Ristorante> ristoranti = new ArrayList<>();
+		Connection conn = openConnection();
+		if (conn == null) return ristoranti;
+		try (Statement stmt = conn.createStatement()) {
+			ResultSet rs = stmt.executeQuery(getRistoranteEs9);
+			while (rs.next()) {
+				Ristorante ristorante = new Ristorante(rs.getInt("id"), rs.getString("piva"),
+						rs.getString("denominazione"), rs.getString("ragione_sociale"), rs.getString("tipologia"),
+						rs.getInt("ordini_coda"), rs.getInt("coda_max"), rs.getString("telefono"),
+						rs.getString("email"), rs.getString("via"), rs.getString("civico"), rs.getString("cap"),
+						rs.getString("citta"), rs.getString("provincia"));
+				ristoranti.add(ristorante);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return ristoranti;
+	}
+
+	@Override
+	public List<Valutazione> getValutazioniBasseByRider(Rider rider) throws SQLException {
+		List<Valutazione> valutazioni = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null) return valutazioni;
+		try(PreparedStatement stmt = conn.prepareStatement(getValutazioniBasseByRider)){
+			stmt.setString(1, rider.getCf());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Valutazione val = new Valutazione(rs.getString("rider_cf"), rs.getString("cliente_email"), rs.getDate("data_valutazione").toLocalDate(),rs.getInt("valutazione"));
+				valutazioni.add(val);
+			}
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
+		return valutazioni;
+	}
+
+	@Override
+	public boolean inserisciDeliveryInternoPerRistorante(Ristorante ristorante, Dipendente dipendente, String cadenza, String descrizione) throws SQLException, IOException {
+		boolean queryRes = false;
+		Connection conn = openConnection();
+		if(conn == null) return queryRes;
+		conn.setAutoCommit(false);
+		try(PreparedStatement stmt = conn.prepareStatement(inserisciDeliveryInternoPerRistorante)){
+			stmt.setInt(1, ristorante.getId());
+			stmt.setString(2, "Interno");
+			stmt.setString(3, descrizione);
+			stmt.setDate(4, java.sql.Date.valueOf(LocalDate.now()));
+			stmt.setString(5, cadenza);
+			queryRes = stmt.executeUpdate() == 1;
+			ResultSet rs = stmt.executeQuery("SELECT LAST_INSERT_ID() as id;");
+			if(rs.next() && queryRes)
+				dipendente.setDeliveryCodice(rs.getInt("id"));
+			else
+				throw new IOException("Errore nell'inserimento del delivery");
+		} catch (Exception e) {
+			conn.rollback();
+			closeConnection(conn);
+			throw e;
+		}
+		try(PreparedStatement stmt = conn.prepareStatement(inserisciPersona)) {
+			stmt.setString(1,dipendente.getNome());
+			stmt.setString(2,dipendente.getCognome());
+			stmt.setString(3,dipendente.getCf());
+			stmt.setString(4,dipendente.getEmail());
+			stmt.setString(5,dipendente.getTelefono());
+			queryRes = stmt.executeUpdate() == 1;
+			if(!queryRes)
+				throw new IOException("Errore nell'inserimento della persona");
+		} catch (Exception e) {
+			conn.rollback();
+			closeConnection(conn);
+			throw e;
+		}
+		try(PreparedStatement stmt = conn.prepareStatement(inserisciDipendente)) {
+			stmt.setString(1,dipendente.getCf());
+			stmt.setString(2,dipendente.getStato());
+			stmt.setInt(3,dipendente.getAnniEsperienza());
+			stmt.setString(4,dipendente.getCurriculum());
+			stmt.setInt(5,dipendente.getDeliveryCodice());
+			queryRes = stmt.executeUpdate() == 1;
+			if(!queryRes)
+				throw new IOException("Errore nell'inserimento del dipendente");
 		} catch (Exception e) {
 			conn.rollback();
 			closeConnection(conn);

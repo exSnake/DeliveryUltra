@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+
 import it.unisa.deliveryultra.model.*;
 import it.unisa.deliveryultra.view.*;
 
@@ -31,6 +33,23 @@ public class GestisciOrdiniController {
 			e1.printStackTrace();
 			return;
 		}
+		initializeButton();
+	}
+	
+	public void initializeEs9() {
+		setLabelToNull();
+		try {
+			for (Ristorante ristorante : db.getRistorantiEs9()) {
+				view.getCmbRistoranti().addItem(ristorante);
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return;
+		}
+		initializeButton();
+	}
+	
+	public void initializeButton() {
 		view.getCmbRistoranti().setSelectedIndex(-1);
 		view.getCmbRistoranti().addActionListener(e -> onSelectedRistoranteChange());
 		view.getBtnAccetta().addActionListener(e -> onAccettaClick());
@@ -38,7 +57,7 @@ public class GestisciOrdiniController {
 		view.getBtnCerca().addActionListener(e -> onCercaClick());
 		view.getBtnConsegna().addActionListener(e -> onConsegnaClick());
 		view.getBtnElimina().addActionListener(e -> onEliminaClick());
-		view.getTable().getSelectionModel().addListSelectionListener(e -> onSelectedOrdineChange());
+		view.getTable().getSelectionModel().addListSelectionListener(e -> onSelectedOrdineChange(e));
 		view.getBtnInCoda().addActionListener(e -> onInCodaClick());
 		view.setVisible(true);
 	}
@@ -174,7 +193,7 @@ public class GestisciOrdiniController {
 		view.getModel().add(ordini);
 	}
 
-	private void onSelectedOrdineChange() {
+	private void onSelectedOrdineChange(ListSelectionEvent e) {
 		Ordine ordine = view.getTable().getSelectedRow() == -1 ? null : view.getModel().getOrdineDataAt(view.getTable().getSelectedRow());
 		if(ordine == null || ordine.getStato().equals("CONSEGNATO")) {
 			view.getBtnAccetta().setEnabled(false);

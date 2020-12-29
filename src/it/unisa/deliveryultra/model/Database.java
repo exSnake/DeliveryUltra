@@ -102,5 +102,17 @@ public abstract class Database {
 	public abstract List<Rider> getRiderValutabiliByCliente(Cliente cliente) throws SQLException;
 
 	public abstract boolean valutaRider(Cliente cliente, Rider rider, int valutazione) throws SQLException, IOException;
+
+	public abstract List<Valutazione> getValutazioniByRider(Rider rider) throws SQLException;
+
+	public abstract List<Impiego> getImpieghiByRider(Rider rider) throws SQLException;
+
+	public abstract List<Rider> getRiders() throws SQLException;
+
+	public abstract List<Ristorante> getRistorantiEs9() throws SQLException;
+
+	public abstract List<Valutazione> getValutazioniBasseByRider(Rider rider) throws SQLException;
+
+	public abstract boolean inserisciDeliveryInternoPerRistorante(Ristorante ristorante, Dipendente dipendente, String cadenza, String descrizione) throws SQLException, IOException;
 	
 }

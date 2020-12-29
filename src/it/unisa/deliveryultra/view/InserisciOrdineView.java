@@ -18,9 +18,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JToggleButton;
 
 public class InserisciOrdineView extends JFrame {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private JTextField txtTipo;
 	private JComboBox<Ristorante> cmbRistorante;
@@ -32,9 +30,6 @@ public class InserisciOrdineView extends JFrame {
 	private JLabel lblRemainingChar;
 	private JToggleButton tglbtnDisponibili;
 
-	/**
-	 * Create the panel.
-	 */
 	public InserisciOrdineView() {
 		setTitle("Admin - Inserimento Nuovo Ordine");
 		setResizable(false);

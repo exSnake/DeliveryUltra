@@ -75,6 +75,7 @@ public class ValutazioneRiderController {
 	}
 
 	private void onClienteChange(ItemEvent e) {
+		view.getCmbRiders().removeAllItems();
 		Cliente cliente = (Cliente) e.getItem();
 		if(cliente == null) {
 			setValutazionePanelEnabled(false);
