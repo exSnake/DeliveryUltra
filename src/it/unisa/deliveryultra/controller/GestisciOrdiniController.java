@@ -20,7 +20,7 @@ public class GestisciOrdiniController {
 	public GestisciOrdiniController(Database db, GestisciOrdiniView view) {
 		this.db = db;
 		this.view = view;
-		this.personaDialog = new PersonaSelectDialog();
+		this.personaDialog = null;
 	}
 	
 	public void initialize() {

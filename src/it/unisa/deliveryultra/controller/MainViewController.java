@@ -24,7 +24,13 @@ public class MainViewController {
 		this.view.getBtnValutaRider().addActionListener(e -> valutaRiderShow());
 		this.view.getBtnRiderReport().addActionListener(e -> riderReportShow());
 		this.view.getBtnAssumiDipendente().addActionListener(e -> assumiDipendenteShow());
+		this.view.getBtnGestisciRistoranti().addActionListener(e -> gestioneRistorantiShow());
 		this.view.setVisible(true);
+	}
+
+	private void gestioneRistorantiShow() {
+		GestisciRistorantiController gestisciRistorantiController = new GestisciRistorantiController(this.db, new GestisciRistorantiView());
+		gestisciRistorantiController.initialize();
 	}
 
 	private void assumiDipendenteShow() {

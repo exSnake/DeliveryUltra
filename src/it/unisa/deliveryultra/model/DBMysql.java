@@ -30,9 +30,17 @@ public class DBMysql extends Database {
 	private static final String getOrdiniByCliente = "SELECT * FROM ordini WHERE cliente_email = ?;";
 	private static final String getOrdiniConsegnatiDaRiderNonValutati = "SELECT * FROM ordini o WHERE persona_cf IS NOT NULL AND o.persona_cf NOT IN (SELECT rider_cf as cf FROM valutazioni UNION SELECT persona_cf FROM dipendenti);";
 	
+	private static final String getDeliveriesByRistorante = "SELECT * FROM deliveries WHERE ristorante_id = ?;";
+	private static final String getDeliveryInterniByRistorante = "SELECT * FROM deliveries WHERE ristorante_id = ? AND tipologia = 'Interno'";
+	private  static final String getSocietaNonAssociateAlRistorante = "SELECT * FROM societa WHERE piva NOT IN (\r\n"
+																		+ "    SELECT piva FROM deliveries "
+																		+ "    JOIN affidi a on deliveries.codice = a.delivery_codice "
+																		+ "    JOIN societa s on a.societa_piva = s.piva "
+																		+ "    WHERE ristorante_id = ? "
+																		+ ")";
 	private static final String getRistorantiDisponibiliByCoda = "SELECT * FROM ristoranti r WHERE r.ordini_coda < r.coda_max;";
 	private static final String getRistoranteDisponibileByCoda = "SELECT ordini_coda < ristoranti.coda_max as disponibile FROM ristoranti WHERE ristoranti.id = ?;";
-	
+	private static final String getRistoranteDeliveryEsterni = "SELECT * FROM deliveries WHERE ristorante_id = ? AND tipologia = 'Esterno';";
 	private static final String getPersoneByNominativoConsegnaUltimaSettimana = "SELECT p.nome, p.cognome, p.telefono FROM ordini o "
 																+ "LEFT JOIN persone p on p.cf = o.persona_cf "
 																+ "WHERE nominativo_consegna = ? AND data_ordine >= CURDATE() - INTERVAL + 7 DAY;";
@@ -78,6 +86,8 @@ public class DBMysql extends Database {
 	
 	private static final String DBMS_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static final String ARGUMENTS = "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+	private static final String setAffidoSocietaADeliveryEsterno = "INSERT INTO affidi (delivery_codice, societa_piva) VALUES (?, ?);";
+	
 
 	/**
 	 * @param server
@@ -812,6 +822,27 @@ public class DBMysql extends Database {
 			closeConnection(conn);
 			throw e;
 		}
+		queryRes = inserisciDipendente(dipendente, conn);
+		if(!queryRes) {
+			conn.rollback();
+			closeConnection(conn);
+			
+		}
+		conn.commit();
+		closeConnection(conn);
+		return queryRes;
+	}
+
+	private boolean inserisciDipendente(Dipendente dipendente, Connection conn) throws SQLException, IOException{
+		boolean closeConn = false;
+		boolean queryRes = false;
+		if(conn == null || conn.isClosed()) {
+			conn = openConnection();
+			closeConn = true;
+			if(conn == null)
+				return queryRes;
+			conn.setAutoCommit(false);
+		}
 		try(PreparedStatement stmt = conn.prepareStatement(inserisciPersona)) {
 			stmt.setString(1,dipendente.getNome());
 			stmt.setString(2,dipendente.getCognome());
@@ -823,7 +854,8 @@ public class DBMysql extends Database {
 				throw new IOException("Errore nell'inserimento della persona");
 		} catch (Exception e) {
 			conn.rollback();
-			closeConnection(conn);
+			if(closeConn)
+				closeConnection(conn);
 			throw e;
 		}
 		try(PreparedStatement stmt = conn.prepareStatement(inserisciDipendente)) {
@@ -837,10 +869,117 @@ public class DBMysql extends Database {
 				throw new IOException("Errore nell'inserimento del dipendente");
 		} catch (Exception e) {
 			conn.rollback();
+			if(closeConn)
+				closeConnection(conn);
+			throw e;
+		}
+		if(closeConn) {
+			conn.commit();
+			closeConnection(conn);
+		}
+		return queryRes;
+	}
+
+	@Override
+	public List<Delivery> getDeliveriesInterniByRistorante(Ristorante ristorante) throws SQLException {
+		Connection conn = openConnection();
+		List<Delivery> deliveries = new ArrayList<>();
+		if(conn == null) return deliveries;
+		try(PreparedStatement stmt = conn.prepareStatement(getDeliveryInterniByRistorante)) {
+			stmt.setInt(1, ristorante.getId());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Delivery del = new Delivery(rs.getInt("codice"), rs.getInt("ristorante_id"), rs.getString("tipologia"), rs.getString("descrizione"), rs.getDate("data_inizio").toLocalDate(), rs.getString("cadenza"));
+				deliveries.add(del);
+			}
+		} catch (Exception e) {
 			closeConnection(conn);
 			throw e;
 		}
-		conn.commit();
+		closeConnection(conn);
+		return deliveries;
+	}
+
+	@Override
+	public boolean inserisciDipendenteADeliveryInterno(Dipendente dipendente, Delivery delivery)
+			throws SQLException, IOException {
+		dipendente.setDeliveryCodice(delivery.getCodice());
+		return inserisciDipendente(dipendente, null);
+	}
+
+	@Override
+	public List<Delivery> getDeliveriesByRistorante(Ristorante ristorante) throws SQLException {
+		List<Delivery> deliveries = new ArrayList<Delivery>();
+		Connection conn = openConnection();
+		if(conn == null) return deliveries;
+		try(PreparedStatement stmt = conn.prepareStatement(getDeliveriesByRistorante)) {
+			stmt.setInt(1, ristorante.getId());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Delivery del = new Delivery(rs.getInt("codice"), rs.getInt("ristorante_id"), rs.getString("tipologia"), rs.getString("descrizione"), rs.getDate("data_inizio").toLocalDate(), rs.getString("cadenza"));
+				deliveries.add(del);
+			}
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
+		return deliveries;
+	}
+
+	@Override
+	public List<Delivery> getRistoranteServiziEsterni(Ristorante ristorante) throws SQLException {
+		List<Delivery> deliveries = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null)
+			return deliveries;
+		try(PreparedStatement stmt = conn.prepareStatement(getRistoranteDeliveryEsterni)) {
+			stmt.setInt(1, ristorante.getId());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Delivery del = new Delivery(rs.getInt("codice"),rs.getInt("ristorante_id"),rs.getString("tipologia"),rs.getString("descrizione"),rs.getDate("data_inizio").toLocalDate(),rs.getString("cadenza"));
+				deliveries.add(del);
+			}
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return deliveries;
+	}
+
+	@Override
+	public List<Societa> getSocietaNonAssociateAlRistorante(Ristorante ristorante) throws SQLException {
+		List<Societa> societa = new ArrayList<>();
+		Connection conn = openConnection();
+		if(conn == null) return societa;
+		try (PreparedStatement stmt = conn.prepareStatement(getSocietaNonAssociateAlRistorante)){
+			stmt.setInt(1, ristorante.getId());
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()) {
+				Societa soc = new Societa(rs.getString("piva"), rs.getString("cf"), rs.getString("email"), rs.getString("denominazione"), rs.getString("amministratore"), rs.getString("via"), rs.getString("civico"), rs.getString("cap"), rs.getString("citta"), rs.getString("provincia"));
+				societa.add(soc);
+			}
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return societa;
+	}
+
+	@Override
+	public boolean assegnaSocietaADeliveryEsterno(Societa societa, Delivery deliveryEsterno) throws SQLException, IOException {
+		boolean queryRes = false;
+		Connection conn = openConnection();
+		if(conn == null) return queryRes;
+		try(PreparedStatement stmt = conn.prepareStatement(setAffidoSocietaADeliveryEsterno )){
+			stmt.setInt(1, deliveryEsterno.getCodice());
+			stmt.setString(2, societa.getPiva());
+			queryRes = stmt.executeUpdate() == 1;
+		} catch (Exception e) {
+			closeConnection(conn);
+			throw e;
+		}
 		closeConnection(conn);
 		return queryRes;
 	}

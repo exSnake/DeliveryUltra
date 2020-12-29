@@ -25,6 +25,7 @@ public class MainView extends JFrame {
 	private JButton btnAssumiDipendente;
 	private JLabel lblNewLabel;
 	private JPanel panel;
+	private JButton btnGestisciRistoranti;
 
 	public MainView() {
 		setTitle("DeliveryUltra - Pagina Principale");
@@ -45,7 +46,7 @@ public class MainView extends JFrame {
 		panel.setBackground(new Color(204, 255, 204));
 		panel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Seleziona un'operazione", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		contentPane.add(panel, "cell 0 1,grow");
-		panel.setLayout(new MigLayout("", "[grow][grow]", "[][][][]"));
+		panel.setLayout(new MigLayout("", "[grow][grow]", "[][][][][]"));
 		
 		btnGestisciOrdini = new JButton("Gestisci Ordini");
 		btnGestisciOrdini.setBackground(new Color(255, 255, 204));
@@ -54,35 +55,38 @@ public class MainView extends JFrame {
 		
 		setBtnInserisciOrdine(new JButton("Inserisci Ordine"));
 		
+		btnGestisciRistoranti = new JButton("Gestisci Ristoranti");
+		panel.add(btnGestisciRistoranti, "cell 0 1 2 1,growx");
+		
 		btnFiltraOrdini = new JButton("Filtra Ordini");
 		btnFiltraOrdini.setBackground(new Color(255, 255, 204));
 		btnFiltraOrdini.setForeground(new Color(0, 0, 51));
-		panel.add(btnFiltraOrdini, "cell 0 1,grow");
+		panel.add(btnFiltraOrdini, "cell 0 2,grow");
 		
 		btnCovidTracking = new JButton("Covid Tracking");
 		btnCovidTracking.setBackground(new Color(255, 255, 204));
 		btnCovidTracking.setForeground(new Color(0, 0, 51));
-		panel.add(btnCovidTracking, "cell 1 1,grow");
+		panel.add(btnCovidTracking, "cell 1 2,grow");
 		
 		btnValutaRider = new JButton("Valuta Rider");
 		btnValutaRider.setBackground(new Color(255, 255, 204));
 		btnValutaRider.setForeground(new Color(0, 0, 51));
-		panel.add(btnValutaRider, "cell 0 2,grow");
+		panel.add(btnValutaRider, "cell 0 3,grow");
 		
 		btnRiderReport = new JButton("Report Riders");
 		btnRiderReport.setBackground(new Color(255, 255, 204));
 		btnRiderReport.setForeground(new Color(0, 0, 51));
-		panel.add(btnRiderReport, "cell 1 2,grow");
+		panel.add(btnRiderReport, "cell 1 3,grow");
 		
 		btnEs9 = new JButton("Punto 9");
 		btnEs9.setBackground(new Color(255, 255, 204));
 		btnEs9.setForeground(new Color(0, 0, 51));
-		panel.add(btnEs9, "cell 0 3,grow");
+		panel.add(btnEs9, "cell 0 4,grow");
 		
 		btnAssumiDipendente = new JButton("Assumi Dipendente");
 		btnAssumiDipendente.setBackground(new Color(255, 255, 204));
 		btnAssumiDipendente.setForeground(new Color(0, 0, 51));
-		panel.add(btnAssumiDipendente, "cell 1 3,grow");
+		panel.add(btnAssumiDipendente, "cell 1 4,grow");
 	}
 
 	public JButton getBtnInserisciOrdine() {
@@ -115,5 +119,8 @@ public class MainView extends JFrame {
 	}
 	public JButton getBtnAssumiDipendente() {
 		return btnAssumiDipendente;
+	}
+	public JButton getBtnGestisciRistoranti() {
+		return btnGestisciRistoranti;
 	}
 }

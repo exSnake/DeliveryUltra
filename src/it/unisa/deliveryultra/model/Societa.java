@@ -1,5 +1,9 @@
 package it.unisa.deliveryultra.model;
 
+/**
+ * @author exSna
+ *
+ */
 public class Societa {
 	private String piva;
 	private String cf;
@@ -86,6 +90,12 @@ public class Societa {
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
 	}
+	@Override
+	public String toString() {
+		return piva + " - " + denominazione ;
+	}
+	
+	
 	
 	
 }

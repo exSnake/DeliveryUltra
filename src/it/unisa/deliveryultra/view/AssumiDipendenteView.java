@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JSpinner;
 import javax.swing.border.TitledBorder;
 
+import it.unisa.deliveryultra.model.Delivery;
 import it.unisa.deliveryultra.model.Ristorante;
 
 import javax.swing.border.EtchedBorder;
@@ -40,7 +41,16 @@ public class AssumiDipendenteView extends JFrame {
 	private JTextField txtDescrizione;
 	private JLabel lblCadenza;
 	private JTextField txtCadenza;
-	private JPanel panel_1;
+	private JPanel panelDatiAssunzione;
+	private JPanel panelNuovoDelivery;
+	private JComboBox<Delivery> cmbDelivery;
+	private JLabel lblDelivery;
+	private JLabel lblExDescrizione;
+	private JLabel lblExCadenza;
+	private JTextField txtExDescrizione;
+	private JTextField txtExCadenza;
+	private JPanel panelDeliveryInterno;
+	private JButton btnResetDelivery;
 
 
 	/**
@@ -49,7 +59,7 @@ public class AssumiDipendenteView extends JFrame {
 	public AssumiDipendenteView() {
 		setTitle("Admin - Creazione Dipendente Ristorante");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 537, 440);
+		setBounds(100, 100, 537, 560);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -114,37 +124,77 @@ public class AssumiDipendenteView extends JFrame {
 		spinAnniEsperienza = new JSpinner();
 		panel.add(spinAnniEsperienza, "cell 1 6,growx");
 		
-		panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Dati Assunzione", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		contentPane.add(panel_1, "cell 1 3,grow");
-		panel_1.setLayout(new MigLayout("", "[90.00][427.00]", "[grow][][][]"));
+		panelDatiAssunzione = new JPanel();
+		panelDatiAssunzione.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Dati Assunzione", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		contentPane.add(panelDatiAssunzione, "cell 1 3,grow");
+		panelDatiAssunzione.setLayout(new MigLayout("", "[90.00][427.00,grow]", "[grow][][][]"));
 		
 		JLabel lblRistorante = new JLabel("Ristorante");
-		panel_1.add(lblRistorante, "cell 0 0,alignx left");
+		panelDatiAssunzione.add(lblRistorante, "cell 0 0,alignx left");
 		
 		cmbRistoranti = new JComboBox<>();
-		panel_1.add(cmbRistoranti, "cell 1 0,grow");
+		panelDatiAssunzione.add(cmbRistoranti, "cell 1 0,grow");
+		
+		panelDeliveryInterno = new JPanel();
+		panelDeliveryInterno.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Delivery Interno Esistente", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelDatiAssunzione.add(panelDeliveryInterno, "cell 0 1 2 1,grow");
+		panelDeliveryInterno.setLayout(new MigLayout("", "[90.00][427.00,grow]", "[][][]"));
+		
+		lblDelivery = new JLabel("Codice");
+		lblDelivery.setEnabled(false);
+		panelDeliveryInterno.add(lblDelivery, "cell 0 0,alignx trailing");
+		
+		cmbDelivery = new JComboBox();
+		cmbDelivery.setEnabled(false);
+		panelDeliveryInterno.add(cmbDelivery, "flowx,cell 1 0,growx");
+		
+		lblExDescrizione = new JLabel("Descrizione");
+		panelDeliveryInterno.add(lblExDescrizione, "cell 0 1,alignx right");
+		
+		txtExDescrizione = new JTextField();
+		txtExDescrizione.setEditable(false);
+		txtExDescrizione.setEnabled(true);
+		panelDeliveryInterno.add(txtExDescrizione, "cell 1 1,growx");
+		txtExDescrizione.setText("");
+		txtExDescrizione.setColumns(10);
+		
+		lblExCadenza = new JLabel("Cadenza");
+		panelDeliveryInterno.add(lblExCadenza, "cell 0 2,alignx trailing");
+		
+		txtExCadenza = new JTextField();
+		txtExCadenza.setEditable(false);
+		panelDeliveryInterno.add(txtExCadenza, "cell 1 2,growx");
+		txtExCadenza.setColumns(10);
+		
+		btnResetDelivery = new JButton("R");
+		btnResetDelivery.setEnabled(false);
+		panelDeliveryInterno.add(btnResetDelivery, "cell 1 0,alignx center,aligny center");
+		
+		panelNuovoDelivery = new JPanel();
+		panelNuovoDelivery.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Nuovo delivery interno", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelDatiAssunzione.add(panelNuovoDelivery, "cell 0 2 2 1,grow");
+		panelNuovoDelivery.setLayout(new MigLayout("", "[90.00][427.00]", "[][]"));
 		
 		lblDescrizione = new JLabel("Descrizione");
-		panel_1.add(lblDescrizione, "cell 0 1,alignx left");
+		panelNuovoDelivery.add(lblDescrizione, "cell 0 0,alignx left");
 		
 		txtDescrizione = new JTextField();
-		panel_1.add(txtDescrizione, "cell 1 1,growx");
+		panelNuovoDelivery.add(txtDescrizione, "cell 1 0,growx");
 		txtDescrizione.setColumns(10);
 		
 		lblCadenza = new JLabel("Cadenza");
-		panel_1.add(lblCadenza, "cell 0 2,alignx left");
+		panelNuovoDelivery.add(lblCadenza, "cell 0 1,alignx left");
 		
 		txtCadenza = new JTextField();
-		panel_1.add(txtCadenza, "cell 1 2,growx");
+		panelNuovoDelivery.add(txtCadenza, "cell 1 1,growx");
 		txtCadenza.setColumns(10);
 		
 		btnAnnulla = new JButton("Annulla");
 		btnAnnulla.addActionListener(e -> closeThis());
-		panel_1.add(btnAnnulla, "flowx,cell 1 3,alignx right");
+		panelDatiAssunzione.add(btnAnnulla, "flowx,cell 1 3,alignx right");
 		
 		btnInserisci = new JButton("Inserisci");
-		panel_1.add(btnInserisci, "cell 1 3,alignx right");
+		panelDatiAssunzione.add(btnInserisci, "cell 1 3,alignx right");
 		
 		lblErrors = new JLabel("");
 		lblErrors.setForeground(new Color(153, 0, 0));
@@ -194,5 +244,26 @@ public class AssumiDipendenteView extends JFrame {
 	}
 	public JTextField getTxtDescrizione() {
 		return txtDescrizione;
+	}
+	public JTextField getTxtExDescrizione() {
+		return txtExDescrizione;
+	}
+	public JLabel getLblExDescrizione() {
+		return lblExDescrizione;
+	}
+	public JLabel getLblExCadenza() {
+		return lblExCadenza;
+	}
+	public JTextField getTxtExCadenza() {
+		return txtExCadenza;
+	}
+	public JComboBox<Delivery> getCmbDelivery() {
+		return cmbDelivery;
+	}
+	public JLabel getLblDelivery() {
+		return lblDelivery;
+	}
+	public JButton getBtnResetDelivery() {
+		return btnResetDelivery;
 	}
 }
