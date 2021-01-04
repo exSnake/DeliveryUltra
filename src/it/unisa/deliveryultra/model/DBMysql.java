@@ -28,7 +28,9 @@ public class DBMysql extends Database {
 	private static final String getOrdiniByRistorante = "SELECT * FROM `ordini` WHERE ristorante_id = ? ORDER BY `data_ordine` DESC;";
 	private static final String getOrdiniInCodaByRistorante = "SELECT * FROM ordini WHERE ristorante_id = ? AND `stato` <> 'CONSEGNATO' ORDER BY `data_ordine` DESC;";
 	private static final String getOrdiniByCliente = "SELECT * FROM ordini WHERE cliente_email = ?;";
-	private static final String getOrdiniConsegnatiDaRiderNonValutati = "SELECT * FROM ordini o WHERE persona_cf IS NOT NULL AND o.persona_cf NOT IN (SELECT rider_cf as cf FROM valutazioni UNION SELECT persona_cf FROM dipendenti);";
+	private static final String getOrdiniConsegnatiDaRiderNonValutati = "SELECT * FROM ordini o LEFT JOIN riders r ON o.persona_cf = r.persona_cf WHERE r.num_valutazioni = 0;";
+	private static final String getOrdiniEffettuatiByCliente = "SELECT COUNT(cliente_email) FROM ordini WHERE cliente_email = ? GROUP BY cliente_email";
+	private static final String getClientiConOrdiniEffettuati = "SELECT *, COUNT(cliente_email) as ordini_effettuati FROM clienti c JOIN ordini o ON c.email = o.cliente_email GROUP BY cliente_email";
 	
 	private static final String getDeliveriesByRistorante = "SELECT * FROM deliveries WHERE ristorante_id = ?;";
 	private static final String getDeliveryInterniByRistorante = "SELECT * FROM deliveries WHERE ristorante_id = ? AND tipologia = 'Interno'";
@@ -41,7 +43,7 @@ public class DBMysql extends Database {
 	private static final String getRistorantiDisponibiliByCoda = "SELECT * FROM ristoranti r WHERE r.ordini_coda < r.coda_max;";
 	private static final String getRistoranteDisponibileByCoda = "SELECT ordini_coda < ristoranti.coda_max as disponibile FROM ristoranti WHERE ristoranti.id = ?;";
 	private static final String getRistoranteDeliveryEsterni = "SELECT * FROM deliveries WHERE ristorante_id = ? AND tipologia = 'Esterno';";
-	private static final String getPersoneByNominativoConsegnaUltimaSettimana = "SELECT p.nome, p.cognome, p.telefono FROM ordini o "
+	private static final String getPersoneByNominativoConsegnaUltimaSettimana = "SELECT DISTINCT p.nome, p.cognome, p.telefono FROM ordini o "
 																+ "LEFT JOIN persone p on p.cf = o.persona_cf "
 																+ "WHERE nominativo_consegna = ? AND data_ordine >= CURDATE() - INTERVAL + 7 DAY;";
 	
@@ -51,6 +53,8 @@ public class DBMysql extends Database {
 																+ "LEFT JOIN riders r ON r.persona_cf = v.rider_cf "
 																+ "WHERE rider_cf = ? AND data_valutazione >= CURDATE() - INTERVAL + 7 DAY "
 																+ "AND v.valutazione < r.score_medio;";
+	
+	private static final String getClientiValutazioniBasse = "SELECT c.* FROM valutazioni v LEFT JOIN riders r ON r.persona_cf = v.rider_cf LEFT JOIN clienti c on v.cliente_email = c.email WHERE data_valutazione >= CURDATE() - INTERVAL + 7 DAY AND v.valutazione < r.score_medio;";
 	private static final String setValutazioneRider = "INSERT INTO `valutazioni` (`rider_cf`, `cliente_email`, `data_valutazione`, `valutazione`) VALUES (?, ?, ?, ?);";
 	private static final String setNuovoRiderScoreMedio = "UPDATE riders SET score_medio = (score_medio * num_valutazioni + ?) / (num_valutazioni + 1), "
 																		+ "num_valutazioni = num_valutazioni + 1 WHERE persona_cf = ?;";
@@ -260,8 +264,8 @@ public class DBMysql extends Database {
 	}
 
 	@Override
-	public ArrayList<Cliente> getClienti() throws SQLException {
-		ArrayList<Cliente> clienti = new ArrayList<>();
+	public List<Cliente> getClienti() throws SQLException {
+		List<Cliente> clienti = new ArrayList<>();
 		Connection conn = openConnection();
 		if (conn == null) return clienti;
 		try (PreparedStatement stmt1 = conn.prepareStatement(getClienti)) {
@@ -982,6 +986,73 @@ public class DBMysql extends Database {
 		}
 		closeConnection(conn);
 		return queryRes;
+	}
+
+	@Override
+	public int getOrdiniEffettuatiByCliente(Cliente cliente) throws SQLException {
+		int ordini = 0;
+		Connection conn = openConnection();
+		if (conn == null) throw new SQLException("Connessione errore");
+		try (PreparedStatement stmt = conn.prepareStatement(getOrdiniEffettuatiByCliente)) {
+			stmt.setString(1, cliente.getEmail());
+			ResultSet rs = stmt.executeQuery();
+			if(rs.next()) {
+				ordini = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return ordini;
+	}
+
+	@Override
+	public List<Cliente> getClientiConOrdiniEffettuati() throws SQLException {
+		List<Cliente> clienti = new ArrayList<>();
+		Connection conn = openConnection();
+		if (conn == null) return clienti;
+		try (PreparedStatement stmt1 = conn.prepareStatement(getClientiConOrdiniEffettuati)) {
+			ResultSet rs = stmt1.executeQuery();
+			while (rs.next()) {
+				Cliente cliente = new Cliente(rs.getString("email"), rs.getString("nome"), rs.getString("cognome"),
+						rs.getString("telefono"), rs.getDate("data_reg").toLocalDate(), rs.getInt("ordini_effettuati"));
+				for (Indirizzo indirizzo : this.getClienteIndirizzi(cliente)) {
+					cliente.aggiungiIndirizzo(indirizzo);
+				}
+				clienti.add(cliente);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return clienti;
+	}
+
+	@Override
+	public List<Cliente> getClientiValutazioniBasse() throws SQLException {
+		List<Cliente> clienti = new ArrayList<>();
+		Connection conn = openConnection();
+		if (conn == null) return clienti;
+		try (PreparedStatement stmt1 = conn.prepareStatement(getClientiValutazioniBasse)) {
+			ResultSet rs = stmt1.executeQuery();
+			while (rs.next()) {
+				Cliente cliente = new Cliente(rs.getString("email"), rs.getString("nome"), rs.getString("cognome"),
+						rs.getString("telefono"), rs.getDate("data_reg").toLocalDate());
+				for (Indirizzo indirizzo : this.getClienteIndirizzi(cliente)) {
+					cliente.aggiungiIndirizzo(indirizzo);
+				}
+				clienti.add(cliente);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			closeConnection(conn);
+			throw e;
+		}
+		closeConnection(conn);
+		return clienti;
 	}
 
 }

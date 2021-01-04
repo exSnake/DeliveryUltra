@@ -126,5 +126,11 @@ public abstract class Database {
 	public abstract List<Societa> getSocietaNonAssociateAlRistorante(Ristorante ristorante) throws SQLException;
 
 	public abstract boolean assegnaSocietaADeliveryEsterno(Societa societa, Delivery deliveryEsterno) throws SQLException, IOException;
+
+	public abstract int getOrdiniEffettuatiByCliente(Cliente cliente) throws SQLException;
+
+	public abstract List<Cliente> getClientiConOrdiniEffettuati() throws SQLException;
+
+	public abstract List<Cliente> getClientiValutazioniBasse() throws SQLException;
 	
 }

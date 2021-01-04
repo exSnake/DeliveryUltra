@@ -11,6 +11,7 @@ public class Cliente {
     private String telefono;
     private LocalDate dataReg;
     private List<Indirizzo> indirizzi;
+	private int ordiniEffetuati;
     
     // Costruttore clienti
     public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg) {
@@ -24,12 +25,7 @@ public class Cliente {
     
 	public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg,
 			List<Indirizzo> indirizzi) {
-		super();
-		this.email = email;
-		this.nome = nome;
-		this.cognome = cognome;
-		this.telefono = telefono;
-		this.dataReg = dataReg;
+		this(email,nome,cognome,telefono,dataReg);
 		this.indirizzi = indirizzi;
 	}
 
@@ -37,11 +33,14 @@ public class Cliente {
 		this.indirizzi = new ArrayList<>();
 	}
 
+	public Cliente(String email, String nome, String cognome, String telefono, LocalDate dataReg, int ordiniEffettuati) {
+		this(email,nome,cognome,telefono,dataReg);
+		this.setOrdiniEffetuati(ordiniEffettuati);
+	}
+
 	public void aggiungiIndirizzo(Indirizzo indirizzo) {
     	this.indirizzi.add(indirizzo);
     }
-	
-	
 
 	public String getEmail() {
 		return email;
@@ -94,6 +93,14 @@ public class Cliente {
 	@Override
 	public String toString() {
 		return nome + " " + cognome + ", " + email;
+	}
+
+	public int getOrdiniEffetuati() {
+		return ordiniEffetuati;
+	}
+
+	public void setOrdiniEffetuati(int ordiniEffetuati) {
+		this.ordiniEffetuati = ordiniEffetuati;
 	}
 	
 	

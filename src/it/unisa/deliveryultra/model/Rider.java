@@ -88,8 +88,6 @@ public class Rider extends Persona {
 
 	public void setTipoVeicolo(String tipoVeicolo) {
 		this.tipoVeicolo = tipoVeicolo;
-	}
-	
-	
+	}	
 	
 }
