@@ -1,7 +1,5 @@
 package it.unisa.deliveryultra.model;
 
-import java.sql.Time;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;

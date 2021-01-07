@@ -144,7 +144,7 @@ public class AssumiDipendenteView extends JFrame {
 		lblDelivery.setEnabled(false);
 		panelDeliveryInterno.add(lblDelivery, "cell 0 0,alignx trailing");
 		
-		cmbDelivery = new JComboBox();
+		cmbDelivery = new JComboBox<>();
 		cmbDelivery.setEnabled(false);
 		panelDeliveryInterno.add(cmbDelivery, "flowx,cell 1 0,growx");
 		

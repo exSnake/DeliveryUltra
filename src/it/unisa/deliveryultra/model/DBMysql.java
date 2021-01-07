@@ -162,6 +162,7 @@ public class DBMysql extends Database {
 		return queryRes;
 	}
 
+	@Override
 	public boolean assegnaOrdine(Ordine ordine, Persona persona, LocalDateTime ora) throws SQLException, IOException {
 		boolean queryRes = false;
 		Connection conn = openConnection();
@@ -223,6 +224,7 @@ public class DBMysql extends Database {
 		return queryRes;
 	}
 
+	@Override
 	public boolean closeConnection(Connection conn) {
 		try {
 			if (!conn.isClosed()) {
@@ -977,6 +979,7 @@ public class DBMysql extends Database {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public boolean inserisciOrdine(Ordine ordine, Ristorante ristorante, Cliente cliente) throws SQLException {
 		boolean queryRes = false;
 

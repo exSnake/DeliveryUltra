@@ -2,7 +2,6 @@ package it.unisa.deliveryultra.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import javax.swing.JOptionPane;
 import it.unisa.deliveryultra.model.*;
 import it.unisa.deliveryultra.view.DeliveryEsternoSelectDialog;
 import it.unisa.deliveryultra.view.GestisciRistorantiView;
-import it.unisa.deliveryultra.view.PersonaSelectDialog;
 
 public class GestisciRistorantiController {
 	private GestisciRistorantiView view;
