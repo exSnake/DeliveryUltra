@@ -70,7 +70,7 @@ public class InserisciOrdineController {
 			Ristorante ristorante = (Ristorante) e.getItem();
 			boolean disponibile = false;
 			try {
-				disponibile = db.checkRistoranteDisponibile(ristorante);
+				disponibile = db.isRistoranteDisponibile(ristorante);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

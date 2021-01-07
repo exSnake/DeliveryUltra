@@ -56,7 +56,12 @@ public class MainViewController {
 		StringBuilder str = new StringBuilder();
 	    str.append(String.format("Clienti che hanno effettuato una valutazione bassa a un rider buono:%n"));
 	    try {
-			for (Cliente cliente : db.getClientiValutazioniBasse()) {
+	    	List<Cliente> clienti = db.getClientiValutazioniBasse();
+			if(clienti.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Nessuna cliente ha effettuato una valutazione bassa");
+				return;
+			}
+			for (Cliente cliente : clienti) {
 				str.append(String.format("%s%n" , cliente));
 			}
 		} catch (SQLException e) {
@@ -106,7 +111,12 @@ public class MainViewController {
 		StringBuilder str = new StringBuilder();
 		str.append(String.format("Persone che hanno consegnato a Giuseppe Verdi %n"));
 		try {
-			for (Persona persona : db.getPersoneByNominativoConsegna("Giuseppe Verdi")) {
+			List<Persona> persone = db.getPersoneByNominativoConsegna("Giuseppe Verdi");
+			if(persone.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Nessuna persona ha consegnato a Giuseppe Verdi nell'ultima settimana");
+				return;
+			}
+			for (Persona persona : persone) {
 				str.append(String.format("%s %s%n", persona.getNome(), persona.getCognome()));
 			}
 		} catch (SQLException e) {
@@ -228,7 +238,7 @@ public class MainViewController {
 		cmb.getBtnGeneric().addActionListener(e -> {
 			Ristorante ristorante = (Ristorante) cmb.getCmbGeneric().getSelectedItem();
 			try {
-				if(db.checkRistoranteDisponibile(ristorante)) {
+				if(db.isRistoranteDisponibile(ristorante)) {
 					JOptionPane.showMessageDialog(view, "Puoi ordinare dal ristorante");
 				} else {
 					JOptionPane.showMessageDialog(view, "Non puoi ordinare dal ristorante");
